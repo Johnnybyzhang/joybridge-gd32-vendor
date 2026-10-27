@@ -1,0 +1,21 @@
+PRIMARY REFERENCES
+
+GD32F103xx datasheet Rev3.3: Figure2-6 p16; Table2-8 pp42-44.
+https://www.gd32mcu.com/download/down/document_id/237/path_type/1
+
+GD32F10x User Manual Rev2.9: GPIO pp155-177; USART pp425-453;
+GPIOA/B bases, input pull-up configuration, BOP/BC semantics, USART1
+base0x40004400 and default PA2/PA3 mapping.
+https://www.gd32mcu.com/data/documents/userManual/GD32F10x_User_Manual_Rev2.9.pdf
+https://download.gigadevice.com/User_Manual/GD32F10x_User_Manual_Rev2.9.pdf
+
+RDA5876 Datasheet V1.2: printed p16 (combined PDF page24, one-based)
+pin table. It defines UART_RX1, UART_TX32, I2C_SDA11, I2C_SCL12,
+LDO_ON16. PCB endpoint associations are inferred from signal functions.
+https://fccid.io/m/c4f44cb21ba8cab77de92bd1cc7990ac3168e489df6ae4becea31bb31b25c0c4.pdf
+
+8CryptDo, AeroModes (MIT), revision recorded in evidence/upstream_revision.json.
+https://github.com/aeromodes/8cryptdo
+
+8BitDo original adapter manual (behavior only, not pin assignment).
+https://support.8bitdo.com/Manual/USB_Adapter/switchpro_windows.html

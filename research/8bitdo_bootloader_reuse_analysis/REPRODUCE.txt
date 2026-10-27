@@ -1,0 +1,41 @@
+Offline reproduction
+====================
+
+Run from the extracted archive root with Python 3. No receiver is needed.
+Use a virtual environment if desired, then install requirements.txt.
+The scripts use only files and emulator memory; none implements hardware I/O.
+
+1. Validate both complete reads against the transcript and known applications:
+
+python bootloader_analysis/backup/validate_backup.py full_backup/backup-01 --v205 recovery/v2.05_decrypted.bin --v204 recovery/v2.04_decrypted.bin --out reproduced/backup
+
+2. Execute the original decoder over captured and new synthetic ciphertext:
+
+python bootloader_analysis/backup/emulate_bootloader_decoder.py --backup full_backup/backup-01/flash_backup.bin --ciphertext recovery/v2.05_usb_payload.bin --plaintext recovery/v2.05_decrypted.bin --cryptdo8-dir recovery --python-deps pydeps --out reproduced/decoder
+
+The --python-deps argument is an optional import search location required by
+the script's parser. It can name a nonexistent pydeps directory when Unicorn
+is already installed in the active Python environment.
+
+3. Execute the original update dispatcher/handler with simulated FMC effects:
+
+python bootloader_analysis/update/emulate_update_handler.py
+
+This overwrites the included update_handler_emulation.json with its new local
+result. Copy the archive first if you want to retain a separate original.
+
+4. Execute original startup/launch paths with explicit peripheral stubs:
+
+python bootloader_analysis/startup/emulate_startup.py
+
+JSON is printed to standard output. The supplied emulation_results.json holds
+the original run. Cases include stock, erased app ID, arbitrary body, button,
+SRAM marker, invalid initial SP, erased boot stamps and occupied scratch area.
+
+5. Inspect a selected original Thumb code range with literal annotations:
+
+python bootloader_analysis/startup/boot_disasm.py 0x0800133C 0x080013A0
+
+These checks establish execution and content behavior under the stated models.
+They do not emulate real USB electrical behavior, flash endurance, option-byte
+state, asynchronous interrupts or operation of the resulting custom application.

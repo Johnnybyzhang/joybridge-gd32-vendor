@@ -1,0 +1,47 @@
+# Independent GPIO and updater analysis
+
+## Result
+
+The user has confirmed that the installed indicator is RGB. Its three firmware-defined channels are **PB9**, **PB8**, and **PB5**, all active-low. Logical masks 1, 2, and 4 select these pins respectively. PB5 is selected by the examined normal status patterns and PWM path. The pairing button input is **PA1**, active-low, configured with the MCU internal pull-up. Exact red/green/blue color-to-pin order is not established by these code paths.
+
+Both the v2.04 and v2.05 decrypted applications use exactly the same bytes and addresses for all relevant GPIO setup, button polling, LED dispatcher, LED state patterns, and LED PWM/breathing functions. See cross_version_evidence.json for exact region hashes.
+
+## Button evidence
+
+At 0x080057F4, board initialization enables the relevant peripheral clocks, then calls GPIO initialization at 0x08005938 with GPIOA base 0x40010800, pin mask 0x0002, mode 0x48. That mode writes configuration nibble 8 (input pull-up/down) and raises the output latch through BOP at offset 0x10, selecting pull-up. The pin is PA1.
+
+Function 0x080106C0 polls this pin through the input helper at 0x08005A48. The helper reads base+0x08, tests the supplied pin mask, and returns 1 for high, 0 for low. At 0x080106DA the zero result branches to the button press/debounce logic. Subsequent reads at 0x0801074C and 0x08010774 continue the held-button handling while zero. High takes the release/idle path.
+
+## LED evidence
+
+The generic dispatcher at 0x08010DDC interprets a logical LED mask passed in r0 and a desired on/off state in r1:
+
+| Logical mask bit | GPIO | Physical pin mask |
+| --- | --- | --- |
+| 1 (0x01) | PB9 | 0x0200 |
+| 2 (0x02) | PB8 | 0x0100 |
+| 4 (0x04) | PB5 | 0x0020 |
+
+All three generic channels have inverted drive: on/nonzero writes GPIOB base+0x14 (BC), driving low; off/zero writes base+0x10 (BOP), driving high. Dispatcher PB5 branch is 0x08010DF8–0x08010E0C.
+
+The actual state-pattern initializer at 0x08010E30 sets r5=4 at 0x08010E46 and stores 4 into the selected LED mask at 0x08010EC6. Pairing/blinking at 0x08010F0A also explicitly selects 4, as do stable-state paths at 0x0801104C and 0x08011068. The wrapper 0x08010FF8 passes that selection to the generic dispatcher. The examined normal status routines select PB5. The user has independently confirmed the LED is physically RGB; PB8 and PB9 are also actual LED channels. Firmware mask order alone does not establish the RGB color order.
+
+PWM/breathing separately confirms PB5: 0x0801120C configures remap constant 0x001A0800, selects GPIOB pin 0x20 in alternate-function push-pull at 0x08011226–0x0801122E, and configures timer base 0x40000400. PWM stop at 0x0801115C restores PB5 to GPIO push-pull. Timer channel compare is ramped up/down by callback 0x08011194. Physical pin/package mapping should be checked against the GD32F103C8T6 LQFP48 datasheet.
+
+## Updater package and logs
+
+v2.05.dat has 28-byte header plus 99,840-byte scrambled payload. Header little-endian words: [205,0x08003400,0x00018600,0,0,0,0]. v2.04 header is [204,0x08003400,0x00018400,0,0,0,0]. UUID-named .dat files are byte-identical to the corresponding version-named copies.
+
+The captured update is corroborated by updateLog.txt lines 421–537: application VID:PID 2dc8:3100, bootloader VID:PID 0483:5760; update begins 2026-10-25 17:26:57, reports Version:205, Len:18600, desAddress:8003400, and succeeds at 17:27:22. Those are log text timestamps and are not independently timezone-converted.
+
+The native updater DLL contains hardcoded key-table modifications at VA 0x1000BE37 and duplicate initialization sites. These are used in device identity/authorization paths and were not needed for recovered firmware decryption. Specifically, they must not be confused with the firmware codec's GD32 stream seed. Cipher reconstruction is owned by the separate recovery analysis; it confirms exact decrypt/re-encrypt round-trip to the source payload.
+
+## Confidence and limits
+
+The PA1/PB5 mapping, pin polarity, internal pull-up, and selected LED channel are direct firmware observations. No electrical test or SWD capture was performed here; LED color and physical trace continuity are not inferred from software alone.
+
+
+Final hardware-reference clarification: the plain RDA5876 datasheet calls
+its relevant control input LDO_ON (pin16), not a separate nRESET. PB13 is
+firmware-confirmed MCU radio startup control; its exact RDA endpoint is an
+inference until PCB continuity is measured. See main README.

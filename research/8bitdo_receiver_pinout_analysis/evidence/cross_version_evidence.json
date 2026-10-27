@@ -1,0 +1,58 @@
+[
+  {
+    "name": "GPIO initialization",
+    "start": "0x080057F4",
+    "end_exclusive": "0x08005938",
+    "bytes": 324,
+    "versions_identical": true,
+    "sha256": "05eb89511b24001d7d9d2b0e127d805b53287e9f06971b95c0f0bdaf92bf3106"
+  },
+  {
+    "name": "GPIO helpers",
+    "start": "0x08005938",
+    "end_exclusive": "0x08005A7C",
+    "bytes": 324,
+    "versions_identical": true,
+    "sha256": "d197d9bc7f8dc4fa8437a5e9845675ab7d1846bdbcb7500620c6002dc553f40d"
+  },
+  {
+    "name": "Button polling",
+    "start": "0x080106C0",
+    "end_exclusive": "0x080107AC",
+    "bytes": 236,
+    "versions_identical": true,
+    "sha256": "2aff12b84a482dbd433a9c0c232e278e8bee8f025412a4404932cda460482c5b"
+  },
+  {
+    "name": "LED dispatcher",
+    "start": "0x08010DDC",
+    "end_exclusive": "0x08010E30",
+    "bytes": 84,
+    "versions_identical": true,
+    "sha256": "2ea5e9696d1e63e863e327d614892716850f247ebac5879a7ca6bc09eecc3ea2"
+  },
+  {
+    "name": "LED patterns",
+    "start": "0x08010E30",
+    "end_exclusive": "0x08010FE4",
+    "bytes": 436,
+    "versions_identical": true,
+    "sha256": "58f9777600536deed50d146d5a57d03480a888028e6fe764a8ba41bccd00b3c6"
+  },
+  {
+    "name": "LED wrappers",
+    "start": "0x08010FF8",
+    "end_exclusive": "0x08011088",
+    "bytes": 144,
+    "versions_identical": true,
+    "sha256": "de04bc7abc7861e35c65e57b6166257c3abb8ba195e3c44bf33816430a297be9"
+  },
+  {
+    "name": "LED PWM",
+    "start": "0x0801115C",
+    "end_exclusive": "0x08011298",
+    "bytes": 316,
+    "versions_identical": true,
+    "sha256": "290c4ea79bb5348ca0662cfc65f447499db1d88f80ef21cb965919a23cb7442b"
+  }
+]

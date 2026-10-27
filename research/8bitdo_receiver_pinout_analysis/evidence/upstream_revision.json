@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/aeromodes/8cryptdo",
+  "commit": "aaffcebafa481631de9c1d722a5693d02234e43a",
+  "commit_date": "2026-10-01T02:58:30Z",
+  "downloaded_files_sha256": {
+    "cryptdo8.py": "6701ba2b6089c47686b2785e1c5729e8533ef1102e1f7cdde904bad9b73167bc",
+    "README.md": "16ea447ce31930e5d88b627dba7cb5583f2bdac0544ad7ac1472d1d982cb957f",
+    "LICENSE": "ae4e9b420a9950ebae102c896b108a8c58168e4d13e3b51c87b5c87ea5ccae1f"
+  }
+}

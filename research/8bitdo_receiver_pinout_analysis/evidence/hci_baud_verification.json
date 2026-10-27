@@ -1,0 +1,37 @@
+{
+  "method": "Verify the baud-transition path by executing recovered Thumb instructions.\n\nRequires Unicorn. This is offline emulation, with no connection to the board.\nHardware initialization and timing are stubbed; the original control flow and\nHCI packet-building instructions execute unchanged.",
+  "entry": "0x08016640",
+  "all_passed": true,
+  "events": [
+    {
+      "event": "configure_uart",
+      "baud": 115200
+    },
+    {
+      "event": "controller_reset_rf_and_core_initialization",
+      "emulation": "stubbed; analyzed separately"
+    },
+    {
+      "event": "hci_tx",
+      "bytes": 14,
+      "hex": "01 02 fd 0a 80 01 60 00 00 80 60 e3 16 00"
+    },
+    {
+      "event": "delay",
+      "argument": 5
+    },
+    {
+      "event": "hci_tx",
+      "bytes": 14,
+      "hex": "01 02 fd 0a 80 01 40 00 00 80 00 b3 02 06"
+    },
+    {
+      "event": "delay",
+      "argument": 5
+    },
+    {
+      "event": "configure_uart",
+      "baud": 1500000
+    }
+  ]
+}

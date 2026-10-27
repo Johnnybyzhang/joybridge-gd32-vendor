@@ -1,0 +1,142 @@
+Independent cross-check of probe-01.zip and updater encode-ID
+===========================================================
+
+Sources read: the user-uploaded probe-01.zip, the original updater DLL and
+Updatev205.pcapng, and the previously recovered v2.04/v2.05 binaries.
+This check did not connect to hardware or change firmware.
+
+1. Exact 32-byte comparison
+
+v2.04 and v2.05 both begin:
+b83f0020713500088d8c0008f1790008398c00083f43000869ba0008ffffffff
+
+Both live app reads in probe-01.zip begin:
+b83f0020713500088d8c0008f1790008398c00083f43000869ba0008f975ca55
+
+Bytes 0..27 agree exactly with BOTH firmware versions. The only four differing
+bytes in the 32-byte probe are offsets 0x1C..0x1F:
+
+  recovered distribution: FF FF FF FF
+  physical readback:      F9 75 CA 55
+
+The live word is little-endian 0x55CA75F9 at address 0x0800341C.
+The initial SP is 0x20003FB8 and reset vector is 0x08003571 in all three.
+These short headers cannot distinguish v2.04 from v2.05 or establish that the
+rest of either application is identical to the installed image.
+
+2. Host encode-ID calculation: native DLL proof
+
+All addresses below are PE virtual addresses in 8BitDoFirmwareUpdaterTools.dll,
+image base 0x10000000. Full disassembly is at updater_analysis/dll.asm.
+
+The verification response in original capture frame 1343 begins with these
+three little-endian device-ID words at USB payload offset 5:
+
+  0x4A458FA5, 0x14333337, 0x3737324A
+
+Native helper 0x10006F00 receives that response body. Instructions at
+0x10006F55..0x10006FA8 load its first three words and place them in instance
+fields +0xB4, +0xB8, +0xBC.
+
+At 0x10008DDE..0x10008E43 the updater does this for each of the three fields:
+
+  encoded[i] = id[i] XOR app_key[id[i] & 0x0F]
+
+Specifically, the table loads are at 0x10008DEB, 0x10008E02 and 0x10008E19,
+from table base 0x101CCAA0. The XORs are at 0x10008DF2, 0x10008E09 and
+0x10008E20. It then passes the 12-byte result and command 0x06 to packet
+sender 0x10008630 (call at 0x10008E43).
+
+Important static-analysis detail: the DLL's on-disk app key table is MUTABLE.
+The active initialization path replaces indices 4..7 before the update.
+Pointer setup at 0x10001116 assigns 0x101D5D8C -> 0x101CCAA0. The relevant
+stores are at 0x100095DA, 0x100095E6, 0x100095F2, 0x100095FE; an equivalent
+instance-pointer path is at 0x10006902..0x1000692F. These replace indices
+4, 5, 6, 7 with B75B7753, 1F8FFA5C, BFF8CF43, C4936167 respectively.
+Using the raw on-disk table without these runtime stores gives wrong IDs.
+
+The active app key table, in index order 0..15:
+
+  186976E5 CAC67ACD 38F27FEE 0A4948F1
+  B75B7753 1F8FFA5C BFF8CF43 C4936167
+  92BD03F0 5573C6ED 57D8845B 827197AC
+  B91901C9 3917EDFE BCD6344F CF9E23B5
+
+This is also the app_key_index table in the saved primary-source fwupd
+plugins/ebitdo/fu-ebitdo-device.c. The native DLL analysis is independent of
+that corroborating implementation.
+
+Arithmetic for this receiver:
+
+  4A458FA5 XOR app_key[5]  (1F8FFA5C) = 55CA75F9
+  14333337 XOR app_key[7]  (C4936167) = D0A05250
+  3737324A XOR app_key[10] (57D8845B) = 60EFB611
+
+The resulting 12 wire bytes are:
+
+  F9 75 CA 55 50 52 A0 D0 11 B6 EF 60
+
+They exactly match frame 13831, the original updater's SET_ENCODE_ID command:
+
+  13 00 16 0F 00 06 0C 00 F9 75 CA 55 50 52 A0 D0 11 B6 EF 60
+
+The first four are also exactly the four bytes now read at app +0x1C. Thus the
+reference mismatch is explained by a device-specific encode-ID in the installed
+image, replacing the distribution image's erased placeholder.
+
+3. Bootloader word corroboration
+
+The updater also has a boot key table at 0x101CCAE0. Pointer setup is at
+0x100010FC (0x101D5D88 -> 0x101CCAE0). Initialization stores at
+0x100095AB..0x100095CE replace indices 0..3; equivalent stores appear at
+0x100068D5..0x100068FB.
+
+The active boot key table is:
+
+  D4284DEB F14AA66C 8C2571D4 8F67DFC9
+  D0859AE1 E5457A30 217C1783 B61DDFA9
+  E65AD00D 6620B8A3 52176F92 80A2DD5B
+  8F861560 0B728B0F AECC9B4D 3C9BA353
+
+Applying the same indexed-XOR calculation gives:
+
+  AF00F595 A22EEC9E 65205DD8
+
+or bytes:
+
+  95 F5 00 AF 9E EC 2E A2 D8 5D 20 65
+
+These match the next 12 bytes of original verification response frame 1343
+(wire offsets 17..28) exactly. Its first word also matches the physical boot
+read at 0x0800001C: bytes 95 F5 00 AF / word 0xAF00F595.
+
+4. Observation versus inference
+
+Directly established: both repeated app reads have the same first 28 bytes as
+the recovered files, and their next word exactly matches the updater's encode-ID
+word, as derived independently from its device-ID input and active key table.
+The boot word has the analogous relationship with the boot key table.
+
+The 32-byte probe does not contain application words at +0x20 and +0x24. The
+host sends three words, but this particular readback alone proves the contents
+of only the first. Do not claim that this small probe has verified all 12 stored
+tag bytes, every application byte, the whole bootloader, or all flash capacity.
+
+The exact target-side code that programs the tag is not present in the updater
+DLL, and the probe only contains the first 32 bootloader bytes. Identifying the
+specific bootloader handler/store instruction awaits a larger readback.
+
+5. Narrow software correction
+
+Keep exact reference matching for bytes 0..27. If the reference word at +0x1C
+is 0xFFFFFFFF, accept and separately record the installed word as the device
+encode-ID field; if the reference has a non-erased word, retain exact comparison
+for that word too. Describe this as a vector-prefix/reference check, not proof
+of a complete firmware match. No new device commands are needed.
+
+The live JSONL contains 12 requests, 12 responses, and 12 accepted payloads;
+the metadata, boot and application data each agree across both reads. The
+reference-check exception occurred after all reads. Consequently the recorded
+standalone_read_succeeded=false is a bookkeeping consequence of where the old
+script sets the flag, rather than a failed USB read. Separate transport/read
+success from optional reference acceptance in the updated status.

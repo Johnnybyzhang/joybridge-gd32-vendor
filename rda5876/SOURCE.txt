@@ -1,0 +1,22 @@
+RDA Technologies R12 Bluetooth initialization source
+
+Unmodified upstream file: rdabt_r12_init.c
+Repository: https://github.com/cherryding1/RDA8955_W17.44_IDH
+Path: soft/platform/edrv/btd/rdabt_driver/src/rdabt_r12_init.c
+Git blob: 9117a02f780eefc4111fe5aab643fb5b89e98519
+Retrieved source tree: b2b6287e8fa9a9f49b679a357b49beb1c31d821c
+Copyright and distribution notice are retained in the source file.
+
+tools/generate_rda_tables.py uses the C preprocessor to extract the complete
+rda_trap_12 and rda_pskey_12 tables. __RDABT_ENABLE_SP__ is defined (SSP).
+BT_UART_BREAK_INT_WAKEUP is undefined: this board uses ordinary H4 UART
+without a UART-break wake line. No optional UART filter patch is selected.
+The manufacturer selects this table for __RDA_CHIP_R12_5876__.
+
+PSKEY 0x80000074 uses the receiver's known 0x05025010 no-external-32k setting.
+PSKEY 0x800000a8 retains its 0x0bbfbf30 power floor. All other selected SDK
+PSKEY values are unchanged. The SDK's ordinary UART filter selection and
+unsniff prerxon commands are sent before installing traps, in SDK order.
+Board RF values, UART baud and Bluetooth identity are retained from the
+supplied receiver evidence.
+The six undocumented stock RAM policy overrides are not applied.

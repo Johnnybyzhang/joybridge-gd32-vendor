@@ -1,0 +1,228 @@
+# SWD backup and bootloader replacement: GD32F103C8T6 receiver
+
+This is a reviewed command path, not a hardware-tested flashing session.
+No target was connected and no erase, protection change or programming command
+was executed while preparing it.
+
+## Sources checked
+
+- Official OpenOCD source snapshot:
+  `cb0c224e936091156ecf3025ba05657408ed64c8`.
+  [Target configuration](https://github.com/openocd-org/openocd/blob/cb0c224e936091156ecf3025ba05657408ed64c8/tcl/target/stm32f1x.cfg),
+  [flash driver](https://github.com/openocd-org/openocd/blob/cb0c224e936091156ecf3025ba05657408ed64c8/src/flash/nor/stm32f1x.c).
+- [OpenOCD flash commands](https://openocd.org/doc/html/Flash-Commands.html),
+  [image commands](https://openocd.org/doc/html/General-Commands.html),
+  [reset configuration](https://openocd.org/doc/html/Reset-Configuration.html),
+  [programming helper](https://openocd.org/doc/html/Flash-Programming.html).
+- [GigaDevice GD32F10x User Manual Rev2.9](https://www.gd32mcu.com/data/documents/userManual/GD32F10x_User_Manual_Rev2.9.pdf),
+  sections 1.5, 2.3.9–2.3.11 and 2.4.7; the PDF was inspected locally.
+- [Raspberry Pi debugprobe Pico configuration](https://github.com/raspberrypi/debugprobe/blob/master/include/board_pico_config.h).
+
+## Hardware connection
+
+A 3.3 V CMSIS-DAP probe is a straightforward choice. The inspected official
+Pico debugprobe configuration assigns SWCLK to GP2, SWDIO to GP3 and target
+nRESET to GP1. Confirm that the firmware actually installed on the probe
+contains this reset mapping. The separate retail Raspberry Pi Debug Probe
+board has a different configuration and does not expose a reset line on its
+three-pin debug connector.
+
+| Probe signal | GD32 pin | GD32 LQFP48 lead |
+|---|---|---|
+| SWDIO | PA13 | 34 |
+| SWCLK | PA14 | 37 |
+| nRESET, if supported and wired | NRST | 7 |
+| GND | VSS / board ground | 23, 35 or 47 |
+| VTref, if the probe requires one | Board's existing 3.3 V rail | VDD: 24, 36 or 48 |
+
+The board can remain USB powered. VTref is a voltage reference input on
+probes that have one; do not interpret it as an instruction to connect two
+power outputs. The Pico implementation uses fixed 3.3 V I/O.
+
+## OpenOCD configuration
+
+The official `stm32f1x` flash driver explicitly supports GigaDevice GD32F1
+devices. The correct generic target script is `target/stm32f1x.cfg`.
+Do not confuse GD32F10x (including GD32F103) with the different GD32F1x0
+family when applying option-register descriptions.
+
+Save the following as `receiver-cmsis-dap.cfg`:
+
+```tcl
+source [find interface/cmsis-dap.cfg]
+transport select swd
+set CHIPNAME gd32f103_receiver
+set WORKAREASIZE 0x1000
+source [find target/stm32f1x.cfg]
+adapter speed 100
+reset_config srst_only srst_nogate connect_assert_srst
+```
+
+The last line requires a supported, physically connected nRESET line.
+This is specifically important here: the recovered stock firmware disables
+both JTAG and SWD at `0x08005918` by selecting SWJ_CFG=4. The reliable access
+path therefore uses hardware reset and attaches before that instruction runs.
+A software reset request is not a substitute when the debug port is already
+disabled. The supplied `receiver-cmsis-dap.cfg` also sets a 100 ms reset pulse
+and explicitly selects open-drain reset drive.
+
+### SW-DP ID mismatch
+
+The official target script defaults to expected SW-DP ID `0x1BA01477`.
+It accepts a `CPUTAPID` override. If the connection log instead reports an
+actual ID such as `0x2BA01477`, rerun with that observed value before the
+configuration is loaded:
+
+```text
+openocd -c "set CPUTAPID 0x2ba01477" -f receiver-cmsis-dap.cfg ...
+```
+
+Do not substitute the CPU part ID or the flash device ID here. Do not use a
+zero/wildcard ID to hide a wiring or target-identification problem. A
+successful `stm32f1x` probe may label a GD32 as an STM32-family device because
+the driver handles compatible identifiers.
+
+## 1. Identify and inspect protection without changing flash
+
+```text
+openocd -f receiver-cmsis-dap.cfg -l receiver-identify.log -f inspect.cfg
+```
+
+The supplied `inspect.cfg` runs `init`, `reset halt`, flash identification
+and the register reads listed below, then exits. It contains no flash erase,
+programming, protection change or option-writing command.
+
+Add the observed `CPUTAPID` override before `-f` if needed.
+
+The important reads are:
+
+| Address | Interpretation |
+|---|---|
+| `0xE000ED00` | ARM CPU identification |
+| `0xE0042000` | GD32 debug/device identification |
+| `0x1FFFF7E0` | Low 16 bits: flash size in KiB; high 16 bits: SRAM size in KiB |
+| `0x4002201C` | FMC_OBSTAT: bit 1 is active security protection, bit 0 option-complement error |
+| `0x1FFFF800`, 16 bytes | Raw option bytes including complements |
+
+GD32F103 calls its read-security setting **SPC**. OpenOCD calls the same
+operation readout protection / `rdp` internally. For this GD32 family,
+unprotected option byte SPC is `0xA5`; its complement is `0x5A`, so the
+little-endian halfword at `0x1FFFF800` is `0x5AA5` when unprotected.
+
+Any other SPC byte enables protection. Changing a protected part back to
+SPC=`0xA5` automatically erases the main flash. This is the decisive reason
+not to run `stm32f1x unlock`, `flash protect ... off`, or option-writing
+commands during a backup attempt. If main flash is protected, a conventional
+SWD read cannot preserve it before the unlock operation.
+
+## 2. Establish the actual backup extent
+
+The C8 device specification is 64 KiB. The supplied update nevertheless
+covers `0x08003400–0x0801B9FF`, beyond that nominal boundary. Its captured
+target address and length are exact, but they do not prove the complete
+physical capacity of this particular chip.
+
+Compare the density register, OpenOCD's reported bank size and the bytes
+actually readable on this board. A raw, non-destructive 128 KiB read is
+useful for investigating this discrepancy because `dump_image` reads
+addressable memory rather than limiting itself to the declared flash bank.
+If the register reports more than 128 KiB, use the larger verified extent
+for a full backup. If the upper address range errors or aliases, do not call
+the resulting file a complete backup.
+
+For a validated 128 KiB span, obtain two copies and the separate metadata:
+
+```text
+openocd -f receiver-cmsis-dap.cfg -l receiver-backup.log -c "init; reset halt; dump_image receiver-main-a.bin 0x08000000 0x20000; dump_image receiver-main-b.bin 0x08000000 0x20000; dump_image receiver-options.bin 0x1ffff800 0x10; dump_image receiver-signature.bin 0x1ffff7e0 0x14; verify_image receiver-main-a.bin 0x08000000 bin; shutdown"
+```
+
+The same command is a read-only diagnostic attempt before that span has been
+validated. The expected main-file length is 131,072 bytes. Both copies must
+match. In PowerShell:
+
+```powershell
+Get-FileHash .\receiver-main-a.bin -Algorithm SHA256
+Get-FileHash .\receiver-main-b.bin -Algorithm SHA256
+```
+
+Inspect the reset vectors at offset zero and compare the application code
+at file offset `0x3400` with the recovered v2.05 image. The stock firmware
+also uses flash for mutable configuration, so an application-wide mismatch
+is not automatically a bad backup; examine where the mismatch occurs.
+The two full reads and direct verification should agree while the target
+is halted.
+
+Backing up from `0x08000000` includes the stock flash bootloader and data
+below the application. The decrypted `.dat` alone excludes that region.
+Option bytes must be retained separately and are not automatically restored
+by writing a main-flash binary.
+
+## 3. Configure the driver only after capacity is established
+
+If a real 128 KiB backing store has been independently established but the
+register still advertises 64 KiB, the current official script allows:
+
+```text
+openocd -c "set FLASH_SIZE 0x20000" -f receiver-cmsis-dap.cfg ...
+```
+
+Keep any required `CPUTAPID` override before `-f` as well. This changes the
+driver's declared bank geometry; it does not add memory to the chip.
+Do not force this merely to suppress a size error.
+
+## 4. Erase and install the replacement flash bootloader
+
+These commands are intentionally destructive and belong after the readable
+backup has been retained, or after the owner has deliberately accepted that
+SPC protection prevents retaining the old main flash.
+
+If `flash info 0` reports page write protection, remove it in a separate
+session after the backup:
+
+```text
+openocd -f receiver-cmsis-dap.cfg -c "init; reset init; flash protect 0 0 last off; shutdown"
+```
+
+Power-cycle the board, then inspect the protection state again. The GD32F103
+does not use the newer STM32 option-load procedure; a power cycle is the
+appropriate conservative route. Preserve the original option snapshot for
+reference rather than blindly writing it back later.
+
+For an unprotected, writable target with verified bank geometry, installing
+a raw replacement bootloader linked for `0x08000000` is:
+
+```text
+openocd -f receiver-cmsis-dap.cfg -c "init; reset init; stm32f1x mass_erase 0; flash write_image new_bootloader.bin 0x08000000 bin; verify_image new_bootloader.bin 0x08000000 bin; reset run; shutdown"
+```
+
+Use the established ID / size overrides when needed. For an ELF, omit the
+binary address/type arguments and use the ELF's own load addresses.
+The new bootloader's application offset, vector relocation and boot-entry
+button policy must match the custom application.
+
+If the device was SPC-protected, the destructive unlock route is a distinct
+operation:
+
+```text
+openocd -f receiver-cmsis-dap.cfg -c "init; reset halt; stm32f1x unlock 0; shutdown"
+```
+
+It loses the previous main flash. Power-cycle and identify again before
+programming. An unlock is not a way to read the previous protected bytes.
+
+`mass_erase` affects main flash. The GigaDevice system-memory bootloader is
+a separate region, so this operation replaces the vendor's flash-resident
+8BitDo bootloader, not GigaDevice's factory system-memory loader.
+
+## Restore path
+
+For a confirmed 128 KiB backup, a full main-flash restore is:
+
+```text
+openocd -f receiver-cmsis-dap.cfg -c "program receiver-main-a.bin verify reset exit 0x08000000"
+```
+
+Use the already-established size override if required to cover that file.
+Restore option settings only deliberately, with the GD32F103 layout and
+the current read-protection state understood; do not treat the raw option
+dump as a normal main-flash image.

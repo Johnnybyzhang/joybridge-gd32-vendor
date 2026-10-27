@@ -1,0 +1,51 @@
+{
+  "hardware_accessed": false,
+  "hid_imported": false,
+  "passed": true,
+  "tests": [
+    {
+      "passed": true,
+      "test": "two_captured_read_exchanges"
+    },
+    {
+      "passed": true,
+      "test": "four_trailing_bytes_are_excluded"
+    },
+    {
+      "passed": true,
+      "test": "malformed_response_shapes_rejected"
+    },
+    {
+      "passed": true,
+      "test": "read_boundaries_and_chunk_limit"
+    },
+    {
+      "passed": true,
+      "test": "identity_rejects_wrong_interface_or_usage"
+    },
+    {
+      "passed": true,
+      "test": "same_connection_probe_and_two_complete_reads"
+    },
+    {
+      "passed": true,
+      "test": "timeout_preserves_partial_and_sends_no_retry"
+    },
+    {
+      "passed": true,
+      "test": "wrong_address_plausibility_rejected"
+    },
+    {
+      "passed": true,
+      "test": "live_12_reply_replay_accepts_erased_reference_id_only"
+    },
+    {
+      "passed": true,
+      "test": "live_replay_rejects_prefix_mismatch_but_records_read_success"
+    },
+    {
+      "passed": true,
+      "test": "live_replay_rejects_different_programmed_reference_id"
+    }
+  ]
+}

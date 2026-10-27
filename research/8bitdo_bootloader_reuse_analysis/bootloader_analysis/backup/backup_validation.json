@@ -1,0 +1,241 @@
+{
+  "schema": "8bitdo-full-backup-validation-v1",
+  "files": {
+    "flash_pass1.bin": {
+      "bytes": 131072,
+      "sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6"
+    },
+    "flash_pass2.bin": {
+      "bytes": 131072,
+      "sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6"
+    },
+    "flash_backup.bin": {
+      "bytes": 131072,
+      "sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6"
+    }
+  },
+  "three_main_files_identical": true,
+  "validated_main_range": [
+    "0x08000000",
+    "0x08020000"
+  ],
+  "transcript": {
+    "bytes": 10247113,
+    "sha256": "04b261545e40f2a511a70f54a139d1e33f0fd49f3e31225e690ee83d29987a7f",
+    "event_counts": {
+      "initial_drain_complete": 1,
+      "request": 11410,
+      "response": 11410,
+      "accepted": 11410
+    },
+    "only_request_opcode": "0x31",
+    "ordered_request_response_accepted_triplets": true,
+    "all_request_padding_zero": true,
+    "all_addresses_lengths_framing_and_payloads_valid": true,
+    "phases": {
+      "probe_metadata_pass1": {
+        "start": "0x08003000",
+        "end_exclusive": "0x08003028",
+        "bytes": 40,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "bbf6c63ae776ce45eeb7868bf7a1ac38bf0cf38234469d92a8e2a11e52761d23"
+      },
+      "probe_metadata_pass2": {
+        "start": "0x08003000",
+        "end_exclusive": "0x08003028",
+        "bytes": 40,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "bbf6c63ae776ce45eeb7868bf7a1ac38bf0cf38234469d92a8e2a11e52761d23"
+      },
+      "probe_boot_pass1": {
+        "start": "0x08000000",
+        "end_exclusive": "0x08000020",
+        "bytes": 32,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "8d3924bbd18d416f8021c0a87e12888b8aaada1713db326f138293c8f022e027"
+      },
+      "probe_boot_pass2": {
+        "start": "0x08000000",
+        "end_exclusive": "0x08000020",
+        "bytes": 32,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "8d3924bbd18d416f8021c0a87e12888b8aaada1713db326f138293c8f022e027"
+      },
+      "probe_app_pass1": {
+        "start": "0x08003400",
+        "end_exclusive": "0x08003420",
+        "bytes": 32,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "2a78ecfd2b7bd23949765784fbe5b76ec9d1bd7e604be7a4a37591abe78b1b21"
+      },
+      "probe_app_pass2": {
+        "start": "0x08003400",
+        "end_exclusive": "0x08003420",
+        "bytes": 32,
+        "requests": 2,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "2a78ecfd2b7bd23949765784fbe5b76ec9d1bd7e604be7a4a37591abe78b1b21"
+      },
+      "flash_pass1": {
+        "start": "0x08000000",
+        "end_exclusive": "0x08020000",
+        "bytes": 131072,
+        "requests": 5699,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6"
+      },
+      "flash_pass2": {
+        "start": "0x08000000",
+        "end_exclusive": "0x08020000",
+        "bytes": 131072,
+        "requests": 5699,
+        "contiguous_complete_coverage": true,
+        "payload_matches_file": true,
+        "sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6"
+      }
+    }
+  },
+  "probe_comparisons": {
+    "metadata": {
+      "start": "0x08003000",
+      "bytes": 40,
+      "both_probe_passes_match_full_dump": true,
+      "sha256": "bbf6c63ae776ce45eeb7868bf7a1ac38bf0cf38234469d92a8e2a11e52761d23"
+    },
+    "boot": {
+      "start": "0x08000000",
+      "bytes": 32,
+      "both_probe_passes_match_full_dump": true,
+      "sha256": "8d3924bbd18d416f8021c0a87e12888b8aaada1713db326f138293c8f022e027"
+    },
+    "app": {
+      "start": "0x08003400",
+      "bytes": 32,
+      "both_probe_passes_match_full_dump": true,
+      "sha256": "2a78ecfd2b7bd23949765784fbe5b76ec9d1bd7e604be7a4a37591abe78b1b21"
+    }
+  },
+  "application_comparisons": {
+    "v2.05": {
+      "compared_bytes": 99840,
+      "reference_sha256": "36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83",
+      "installed_range_sha256": "d2a50ba71c46c798198dbe224771272defe5edc2bfc800b91715e1e0abcc0149",
+      "different_bytes": 16,
+      "different_spans": 2,
+      "all_differences": [
+        {
+          "start": "0x0800341c",
+          "end_exclusive": "0x08003428",
+          "reference_hex": "ffffffffffffffffffffffff",
+          "installed_hex": "f975ca555052a0d011b6ef60"
+        },
+        {
+          "start": "0x08003434",
+          "end_exclusive": "0x08003438",
+          "reference_hex": "ffffffff",
+          "installed_hex": "cd000000"
+        }
+      ]
+    },
+    "v2.04": {
+      "compared_bytes": 99328,
+      "reference_sha256": "1062b160a33888430914ff16364ee9a62517e1c2362473bb10cc4abaaed2b24b",
+      "installed_range_sha256": "fe6e2c8fdaf93c5cb95f677953bad3d629d2aa606f98a766775986b93d5816b8",
+      "different_bytes": 3762,
+      "different_spans": 898
+    }
+  },
+  "capacity_evidence": {
+    "readable_address_bytes": 131072,
+    "lower_upper_64k_identical": false,
+    "lower_upper_64k_differing_byte_positions": 64248,
+    "upper_app_range_matching_v205": [
+      "0x08010000",
+      "0x0801ba00"
+    ],
+    "upper_app_bytes_matching_v205": 47616,
+    "simple_64k_read_alias_ruled_out": true,
+    "density_register_read": false,
+    "write_erase_capacity_tested": false,
+    "interpretation": "Stable, distinct readable flash contents above 64 KiB; not a destructive erase/program qualification or a factory density-register reading."
+  },
+  "regions": [
+    {
+      "name": "bootloader_reservation",
+      "start": "0x08000000",
+      "end_exclusive": "0x08003000",
+      "bytes": 12288,
+      "non_ff_bytes": 10931,
+      "sha256": "8d733de72baf8cc04ce3ada92e3df39be405b55587a749514c0c756eaad38692",
+      "last_non_ff_address": "0x08002b7b"
+    },
+    {
+      "name": "metadata_page",
+      "start": "0x08003000",
+      "end_exclusive": "0x08003400",
+      "bytes": 1024,
+      "non_ff_bytes": 47,
+      "sha256": "13fa3dbb50cb05d9f86e0bf8c41625a94f8416ef0ec388068506415e086be706",
+      "last_non_ff_address": "0x0800302f"
+    },
+    {
+      "name": "installed_application",
+      "start": "0x08003400",
+      "end_exclusive": "0x0801ba00",
+      "bytes": 99840,
+      "non_ff_bytes": 98613,
+      "sha256": "d2a50ba71c46c798198dbe224771272defe5edc2bfc800b91715e1e0abcc0149",
+      "last_non_ff_address": "0x0801b9ff"
+    },
+    {
+      "name": "remaining_tail",
+      "start": "0x0801ba00",
+      "end_exclusive": "0x08020000",
+      "bytes": 17920,
+      "non_ff_bytes": 0,
+      "sha256": "e6e850989ced59a5dbdcaaaed7a199042284822ff4ded39de9565686f8ac3954",
+      "last_non_ff_address": null
+    }
+  ],
+  "vector_reserved_words": {
+    "boot_tag_0800001c": [
+      "0xaf00f595",
+      "0xa22eec9e",
+      "0x65205dd8"
+    ],
+    "app_tag_0800341c": [
+      "0x55ca75f9",
+      "0xd0a05250",
+      "0x60efb611"
+    ],
+    "boot_word_08000028": "0xffffffff",
+    "app_word_08003428": "0xffffffff",
+    "boot_version_08000034": 200,
+    "app_version_08003434": 205
+  },
+  "metadata": {
+    "start": "0x08003000",
+    "first_48_hex": "50236d957c7a01ff0f000f00000000005ab2ebb1377bf4761b06da74a9f3beb00000000000004d840000000000000000",
+    "first_40_match_probe": true,
+    "next_8_zero": true,
+    "3030_through_33ff_all_ff": true,
+    "semantics_not_inferred_from_bytes_alone": true
+  },
+  "limitations": [
+    "This dump covers main flash only; it excludes option bytes, unique-ID/density registers, factory system ROM and controller-internal state.",
+    "The all-FF tail is preserved evidence of its current contents, not proof it is safe to erase or program.",
+    "No physical-device access or firmware operation occurred during this offline validation."
+  ]
+}

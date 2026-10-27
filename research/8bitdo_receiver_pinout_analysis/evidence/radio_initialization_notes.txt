@@ -1,0 +1,122 @@
+# Bluetooth HCI / RDA initialization findings
+
+Source: recovered 8BitDo receiver firmware v2.05, loaded at `0x08003400`.
+All code addresses below are target flash addresses, not offsets in the `.bin`.
+
+## Serial transport and baud transition
+
+`0x08016640` is the board's controller initialization / baud-transition entry.
+Its relevant control flow is:
+
+1. `0x08016642` loads `0x0001C200` (115,200).
+2. `0x08016646` calls UART configuration at `0x080041C0`.
+3. `0x0801664A` calls controller reset and RF/core setup at `0x08009524`.
+4. `0x08016652` calls `0x080165F0`, which sends the two table entries at
+   `0x0801AF24` via the vendor HCI memory/register command builder.
+5. `0x0801665C` tail-calls UART configuration with `0x0016E360` (1,500,000).
+
+`0x080041C0` targets peripheral base `0x40004400`, GD32 USART1 (equivalent
+numbering in ST's F103 library: USART2). Its initialization structure enables
+both transmitter and receiver, with zero word-length, stop, parity and
+hardware-flow-control fields. These correspond to 8 data bits, one stop bit,
+no parity and no hardware RTS/CTS in the recovered F1-style library.
+
+The independent GPIO and DMA analysis confirms PA2 TX (package pin12)
+and PA3 RX (package pin13) as the HCI path.
+
+### Exact baud-switch HCI traffic
+
+The table contains two address/value pairs:
+
+| Table address | Controller address | Value |
+|---|---|---|
+| `0x0801AF24` | `0x80000060` | `0x0016E360` (1,500,000) |
+| `0x0801AF2C` | `0x80000040` | `0x0602B300` |
+
+The packets emitted before changing the host UART to 1.5 Mbaud are:
+
+```text
+01 02 FD 0A 80 01 60 00 00 80 60 E3 16 00
+01 02 FD 0A 80 01 40 00 00 80 00 B3 02 06
+```
+
+Each is 14 bytes: H4 command-packet type `01`, little-endian vendor opcode
+`0xFD02`, parameter length `0x0A`, then ten vendor parameters. The command
+builder used by this path is `0x080166FC`. It includes mode `0x80`, a word
+count of one, a 32-bit little-endian controller address and the 32-bit value.
+`0x08009768` sends each table row and calls the delay function with argument
+5 after each row. The unit of that argument was not established here.
+
+This transition was checked by executing the recovered Thumb instructions
+in Unicorn. UART hardware programming, the earlier controller setup and
+delays were stubbed. Original call ordering and original command-packing
+code executed unchanged. See `verify_hci_baud.py` and
+`hci_baud_verification.json`. This is software verification, not a physical
+logic-analyzer capture of the board's Bluetooth serial signals.
+
+### UART data path
+
+The packet sender at `0x0800B268` tail-calls `0x08003FBC`.
+That routine writes DMA peripheral address `0x40004404`, the USART1 data
+register. The receive DMA configuration at `0x08003F4C` also uses
+`0x40004404`. This independently ties the vendor initialization packets to
+USART1 rather than another serial peripheral.
+
+## Controller control / programming lines
+
+| GPIO | Firmware role | Evidence |
+|---|---|---|
+| PB13 | Controller power-cycle control, low then high during startup | `0x08009758` forwards mask `0x2000` and the requested level to the GPIO write helper using GPIOB base `0x40010C00`; called with 0 then 1 by `0x08009524` |
+| PB10 | Software I²C clock for controller RF initialization | Mask `0x0400` clocked by bus-recovery, START, STOP and byte-send routines |
+| PB11 | Software I²C data for controller RF initialization | Mask `0x0800`; driven for eight data bits, changed to input with pull-up for the acknowledgement bit |
+
+The firmware proves the GPIO roles and levels. It does not by itself prove
+which physical pad number of the RDA package each trace terminates at.
+
+### Why PB10 / PB11 are I²C
+
+- `0x080095A8` first drives both lines high, then emits 30 clock pulses on
+  PB10. This behaves as bus recovery before controller setup.
+- `0x08009604` implements START: PB11 high, PB10 high, PB11 low, PB10 low.
+- `0x08009658` implements STOP: PB10 low, PB11 low, PB10 high, PB11 high.
+- `0x080096AC` emits a byte MSB-first, changes PB11 into input/pull-up for
+  the acknowledgement, clocks PB10 high and samples PB11.
+- `0x08016600` composes a write transaction: START; byte `0x2C`; an 8-bit
+  register; one or more 16-bit words sent high byte first; STOP.
+
+The `0x2C` address byte encodes 7-bit address `0x16`, write direction.
+
+## Initialization table locations
+
+These matter if a later custom firmware must reproduce RDA startup, rather
+than merely use the GD32 button and LED.
+
+| Source table | Count / shape | Caller / purpose |
+|---|---|---|
+| `0x0801A9DC` | 47 × `{uint16 register, uint16 value}` | `0x08009574`; software-I²C RF setup, called both before and after release of PB13 |
+| `0x0801AA98` | 37 × `{uint32 address, uint32 value}` | `0x08009AB8`; vendor HCI command builder `0x08016664`, mode 0 |
+| RAM `0x20000536` | 2 RF entries | `0x080165C0`; software-I²C writes; startup RAM values not reconstructed in this subanalysis |
+| `0x0801ABC0` | 19 × address/value | `0x08009AE8`; core patch/configuration writes |
+| `0x0801AC58` or `0x0801ACC0` | 13 × address/value | `0x080099FC`, depending on RAM byte `0x2000109A` |
+| `0x0801AD38` or `0x0801AD28` | 2 × address/value | Same conditional path, after the preceding 13 writes |
+| `0x0801AD48` | Three prebuilt 14-byte HCI packets | `0x080094A0`; patches six runtime bytes into packets; appears consistent with setting controller identity/address, but semantic identity was not independently established |
+| `0x0801AF24` | 2 × address/value | Baud change, detailed above |
+
+The initial 37-entry table includes writes into RDA memory at `0x800000C0`
+and following, and a control write to `0x80000040`. The 19-entry table
+includes instruction/memory patch values. Preserving and reproducing this
+sequence is more faithful than assuming that HCI Reset alone fully replaces
+the stock initialization.
+
+## Confidence and scope
+
+- USART instance, baud values, H4 packet bytes, PB10/PB11 bit-bang roles and
+  PB13 low/high control are directly supported by recovered instructions.
+- No RGB color assignments are inferred from channel-mask values.
+- No hardware was flashed, powered or probed during this analysis.
+
+
+Final hardware-reference clarification: the plain RDA5876 datasheet calls
+its relevant control input LDO_ON (pin16), not a separate nRESET. PB13 is
+firmware-confirmed MCU radio startup control; its exact RDA endpoint is an
+inference until PCB continuity is measured. See main README.

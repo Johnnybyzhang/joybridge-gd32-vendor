@@ -1,0 +1,12 @@
+{
+  "repo": "https://github.com/openocd-org/openocd",
+  "commit": "cb0c224e936091156ecf3025ba05657408ed64c8",
+  "paths": [
+    "tcl/target/stm32f1x.cfg",
+    "tcl/target/gd32f1x0.cfg",
+    "tcl/interface/cmsis-dap.cfg",
+    "tcl/interface/stlink.cfg",
+    "src/flash/nor/stm32f1x.c",
+    "src/flash/startup.tcl"
+  ]
+}

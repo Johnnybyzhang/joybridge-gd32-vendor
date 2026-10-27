@@ -1,0 +1,121 @@
+Live probe diagnosis and reference-check correction
+2026-10-25
+
+RESULT
+======
+
+The USB memory reads succeeded. The script's final comparison against the
+distributed application image was too strict for an installed device.
+
+The supplied probe-01.zip contains 12 valid request/response exchanges and
+two byte-identical copies of each region:
+
+  0x08003000, 40 bytes: metadata
+  0x08000000, 32 bytes: bootloader vector prefix
+  0x08003400, 32 bytes: application vector prefix
+
+All requests use opcode 0x31. The response length, ACK, copied data and
+excluded trailer handling agree with the original updater capture. No
+firmware update, erase, unlock or memory-write operation appears in this
+probe session. The metadata exactly matches the earlier update capture.
+
+The original status error was:
+  App header does not match the explicitly supplied reference
+
+The old standalone_read_succeeded=false field reflected a bookkeeping issue:
+it was only set after the final reference check. It did not mean that USB
+reads had failed. The revised status records successful reads independently
+from the final probe validation result.
+
+EXACT DIFFERENCE
+================
+
+Both recovered v2.04 and v2.05 headers match all first 28 live application
+bytes. The sole difference in the 32-byte prefix is the following word:
+
+  Address:           0x0800341C  (application offset +0x1C)
+  Distributed image: FF FF FF FF   = 0xFFFFFFFF
+  Live device:       F9 75 CA 55   = 0x55CA75F9
+
+The initial vectors are coherent and stable:
+
+  Bootloader initial SP:    0x20001658
+  Bootloader reset vector:  0x08000191  (Thumb entry 0x08000190)
+  Application initial SP:   0x20003FB8
+  Application reset vector: 0x08003571  (Thumb entry 0x08003570)
+
+This short common vector prefix does not distinguish v2.04 from v2.05.
+
+WHY THIS IS AN INSTALLED ID
+==========================
+
+The original capture's frame 13831 sends SET_ENCODE_ID with these 12 bytes:
+
+  F9 75 CA 55 50 52 A0 D0 11 B6 EF 60
+
+Its first word is exactly the value now read at 0x0800341C. This is also
+explained independently by the application's own validation function at
+0x0800BC64. That code reads the three MCU UID words at 0x1FFFF7E8, reads
+three installed words beginning at 0x0800341C, and checks each using the
+16-word table at 0x08018880:
+
+  encoded[i] = uid[i] XOR key[uid[i] & 0xF]
+
+For the first word of this device:
+
+  0x4A458FA5 XOR 0x1F8FFA5C = 0x55CA75F9
+
+The predicted complete installed ID is:
+
+  0x0800341C: 0x55CA75F9  -- confirmed in the live probe
+  0x08003420: 0xD0A05250  -- predicted; not in the 32-byte live probe
+  0x08003424: 0x60EFB611  -- predicted; not in the 32-byte live probe
+
+All three words match the captured SET_ENCODE_ID payload. The next full
+read will check the two currently unobserved words directly. The bootloader
+word at 0x0800001C, 0xAF00F595, likewise matches its captured verification ID.
+
+See application_id_validation_0800bc64.txt for the annotated ARM code,
+updater_id_crosscheck.txt for the independent Windows updater calculation,
+and live_probe_evidence.json for machine-readable comparisons and hashes.
+
+THE CORRECTION
+==============
+
+The reference check still retains and compares two complete 32-byte reads.
+With --reference-app it now:
+
+1. Requires bytes 0x00 through 0x1B to match exactly.
+2. Permits the word at +0x1C to differ only when the reference has the erased
+   placeholder 0xFFFFFFFF.
+3. Requires that word to match if the reference already contains a programmed
+   ID, and records both observed and reference values in status.json.
+
+The resulting dump contains the actual installed bytes, including its ID.
+No particular device's ID is hardcoded in the tool.
+
+The updated offline verification passes all 11 checks. It replays the exact
+12 live replies and reproduces all six probe binaries byte for byte. It also
+checks rejection of changes in the first 28 bytes and rejection of a different
+already programmed reference ID. Author-side verification never accesses USB.
+
+NEXT READ-ONLY ACTION
+====================
+
+Use the updated kit, keep the device in its existing 8BitDo update mode and
+close other updater/access programs. From the kit root:
+
+  python usb/usb_readonly_backup.py dump --device-index 0 --out backup-01 --length 0x20000 --reference-app reference/v2.05_decrypted.bin
+
+The supplied live log identifies device index 0. List again if devices or
+USB paths have changed. The output directory must not already exist.
+
+This command performs its own corrected probe in the same connection, reads
+the requested 128 KiB span twice, compares the two copies and included probe
+regions, and creates backup-01/flash_backup.bin only after these checks pass.
+It retains status, raw traffic and partial data if any later read fails.
+
+This probe confirms readable bootloader/application prefixes, not the entire
+128 KiB range or physical flash capacity. A full dump will provide the missing
+bootloader code needed to inspect the read/write address checks and erase
+behavior. USB bootloader replacement remains unproven until that analysis.

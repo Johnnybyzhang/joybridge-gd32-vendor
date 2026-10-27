@@ -1,0 +1,183 @@
+Recovered 8BitDo GD32 bootloader: application update and authentication
+====================================================================
+
+Scope and conclusion
+--------------------
+Source: backup-01/flash_backup.bin, mapped at 0x08000000. The bootloader occupies
+the first 0x3000-byte region; application base is 0x08003400. Analysis covers
+this exact recovered bootloader, not every 8BitDo product or firmware revision.
+
+Its ordinary USB application-update path does NOT verify a digital signature,
+payload MAC, or payload hash. It decrypts the known GD32 stream format, writes
+the resulting bytes, and checks programming by reading back each halfword.
+SET_ENCODE_ID programs caller-supplied identification words without validating
+them against the MCU ID. The bootloader's launch path separately has a stack
+pointer mask check; it does not authenticate the application. Thus a suitably
+linked custom application can use this bootloader as-is without an 8BitDo
+signing key. Hardware acceptance has not been tested with a custom image.
+
+This conclusion is supported by original-machine-code emulation, not merely a
+search for crypto constants. See emulate_update_handler.py and
+update_handler_emulation.json. The emulation does not access USB or hardware,
+does not flash the physical receiver, and emits no flashable custom image.
+
+Dispatch and packet format
+--------------------------
+USB OUT callback 0x08000954 receives 64 bytes, strips the first packet-length
+byte, and calls dispatcher 0x0800247C with transport=0x97. Dispatcher accepts
+type 0 and dispatches subtype 0x16 to update handler 0x0800100C. There is no
+authentication-session gate in that dispatch path.
+
+Ordinary 64-byte wire reports have this meaningful prefix (LE = little-endian):
+
+  Header: 23 00 16 1F 00 01 1C 00 [28-byte header]
+  Data:   27 00 16 23 00 00 20 00 [32 scrambled bytes]
+  ID:     13 00 16 0F 00 06 0C 00 [12 identification bytes]
+  Finish: 05 00 16 01 00 02
+
+For HIDAPI, add a leading zero report-ID byte to each 64-byte output report;
+that synthetic byte is not part of the USB wire report. No writer is included
+in this analysis bundle.
+
+The 28-byte header is:
+
+  +0x00: u32 LE version
+  +0x04: u32 LE application destination, required to equal 0x08003400
+  +0x08: u32 LE plaintext/encrypted payload length
+  +0x0C..+0x1B: 16 bytes copied to a local buffer but otherwise unused here
+
+The existing 8CryptDo build_section(..., GD32(), version, addr=0x08003400)
+constructs this 28-byte wrapper and the compatible scrambled payload. Its
+normal payload padding is 0xFF to a positive multiple of 512 bytes. Container
+handling or file-selection rules in the Windows GUI are separate from the
+bootloader acceptance established here.
+
+Exact command behavior
+----------------------
+0x16 / subcommand 0x01, at 0x08001130:
+  Resets decoder/counter state with 0x0800090C. Stores version, destination and
+  length; requires destination == 0x08003400. Erases ceil(length/1024) pages
+  through 0x08000D52, then returns update ACK 0x14. Wrong base gives abort 0x18
+  and internal return -1. Header bytes +0x0C..+0x1B are not verified or consumed.
+  There is no version monotonicity/rollback check or explicit length upper bound.
+
+0x16 / subcommand 0x00, at 0x08001040:
+  Appends the indicated data bytes to buffer 0x20000178. At 512 buffered bytes,
+  or when the declared remaining length is reached, decrypts a block using
+  0x080026C4 -> 0x080027F8. Programs halfwords at base + processed offset and
+  compares every programmed halfword with the decoded buffer. A discrepancy
+  returns abort 0x18 and internal -2. Successful chunks return ACK 0x14.
+  On reaching the declared total, writes the header version at 0x08003434,
+  using two halfword writes. No payload checksum/signature is checked afterward.
+
+0x16 / subcommand 0x06, at 0x0800120C:
+  Programs the three supplied u32 words at 0x0800341C, 0x08003420 and 0x08003424.
+  Helper 0x08000BBC requires each target word to be 0xFFFFFFFF before writing,
+  then checks the programmed word. Failure yields abort 0x18, one status byte
+  0, and internal -4; success yields ACK 0x14 with one status byte 1. There is
+  no UID/key comparison in this setter. Even re-sending the same tag after it
+  has been programmed fails the erased-word prerequisite.
+
+0x16 / subcommand 0x02, at 0x080011D8:
+  Erases three 1 KiB pages at 0x0801F400, 0x0801F800 and 0x0801FC00. For USB
+  transport 0x97, sets byte 0x20000018 to 1 so the update loop exits/disconnects;
+  main then reaches the application handoff. Successful USB finish does not
+  generate an ordinary update ACK. It does not check received length, tags,
+  payload integrity, or a signature before setting the exit flag.
+
+0x16 / subcommand 0x04 returns application/boot versions from 0x08003434 and
+0x08000034. Subcommand 0x05 programs the app version word, without a signature
+check. Internal negative return codes above are not separate on-wire fields.
+
+Decoder
+-------
+Initializer 0x0800090C sets rotations 1, 9, 18, 3 and increment 0x92A753FA.
+The 512-byte wrapper uses a fixed seed table at 0x0800284C; the inner loop uses
+XOR, rotates and additions with chaining reset for each block. This is the
+known GD32 8CryptDo format, not authenticated encryption. A separate decoder
+check by the recovery agent reproduced all 195 captured v2.05 blocks exactly.
+
+Application layout for the normal update sequence
+------------------------------------------------
+Use base 0x08003400. Bound a future custom client's padded application length
+to 0x1C000 bytes (114688), ending no later than 0x0801F400. This leaves the
+bootloader, metadata page 0x08003000..0x080033FF and finalization-erased top
+0xC00 bytes outside the application image. The physical dump covers 128 KiB;
+this suggested bound follows this loader's layout and finalization behavior.
+
+Reserve these application vector-table words as erased 0xFFFFFFFF in the
+distribution plaintext before the normal update/tag sequence:
+
+  +0x1C, +0x20, +0x24: installation identification words
+  +0x34: firmware version word
+
+The normal uploader supplies encode-ID words computed from device-ID words by
+id[i] XOR app_key[id[i] & 15]. The fixed key table is known; this is not a
+manufacturer signature. For this device the normal tag bytes are:
+F9 75 CA 55 50 52 A0 D0 11 B6 EF 60.
+A custom application need not reproduce the stock application's own ID-check
+routine, but preserving these slots accommodates the standard update sequence.
+
+Startup/interrupt/clock handoff requirements are analyzed separately. In
+particular, linking at the correct base alone does not provide a complete
+working custom application startup routine.
+
+Bounds and error caveat
+-----------------------
+The loader is not a robust range-enforcement boundary. Header parsing stores
+the caller's base and length before rejecting a wrong base; it does not clear
+them on rejection. Data handling trusts that state and lacks a header-valid
+flag. The erase helper validates only 1 KiB alignment, with no end-address
+limit; its wrapper also does not faithfully propagate every page-erase error.
+Input lengths are largely trusted. A future correct client must keep the
+conservative range above, use ordinary 32-byte chunks, enforce complete input,
+stop on errors, and avoid sending finish after an incomplete update. No malformed
+write sequence or bootloader-write tool was constructed here.
+
+Read and metadata-write commands
+--------------------------------
+0x31 -> 0x0800195C:
+  Reads cmd_len - 4 bytes directly from the supplied address, with no target-side
+  authentication or address-range check in this function. It mistakenly passes
+  cmd_len to generic reply builder 0x0800142C, so four additional stack bytes
+  are copied after the actual read data. This proves the excluded four-byte
+  trailer is uninitialized/stale stack data, not a CRC. The existing read-only
+  tool correctly copies only the requested n bytes and ignores those four.
+
+0x32 -> 0x0800262C:
+  Accepts destination only 0x08003000, erases its 1 KiB page, and programs from
+  the supplied buffer. It does emit an ACK/abort through 0x0800142C, although
+  the Windows host wrapper does not wait for it. It is not a general arbitrary-
+  address flash write command. Its length accounting is imperfect: captured
+  cmd_len=44 (address4 + data40) causes a 44-byte copy after the address followed
+  by 1+(44>>2)=12 programmed words, i.e. 48 bytes including padding, not just40.
+
+Subtype 0x30 also writes the fixed metadata page. Subtype 0x34 is another
+direct-memory read variant. Neither is needed by the read-only tool or the
+ordinary application update. The 0x1A identification response's third 12-byte
+group is read from hardcoded 0x0800A01C, not the current app ID at 0x0800341C;
+the first 12-byte group supplies the device ID used by the updater.
+
+Original-handler emulation results
+----------------------------------
+The emulator runs actual dispatcher 0x0800247C and handler 0x0800100C, original
+decoder and original erased-word/readback checks. Only FMC unlock/lock, page
+erase, halfword programming and USB reply transport are replaced by memory-
+backed hooks. It does not execute the custom application.
+
+1. A new unsigned 1024-byte fixture encoded with 8CryptDo was accepted. It has
+   valid vector values, erased reserved metadata slots and non-vendor content.
+   Version 0x12345678 and header bytes "not-a-signature!" were accepted.
+   Both decoded 512-byte blocks exactly matched the custom plaintext; version
+   and 12 tag bytes were programmed; the top three pages were erased; the
+   bootloader and metadata page stayed byte-for-byte unchanged.
+2. A ciphertext byte was changed without recomputing any integrity field, and
+   arbitrary tag words 11111111/22222222/33333333 were supplied. The changed
+   plaintext was still programmed and ACKed, tags ACKed, and finish accepted.
+3. Wrong-base header: rejected with no erase or flash change.
+4. Injected programming/readback mismatch: rejected at the first halfword.
+5. Repeated SET_ENCODE_ID after successful programming: rejected because the
+   first identification word was no longer erased.
+
+These establish original-code acceptance in the modeled environment. They do
+not demonstrate that a physical custom firmware has been flashed or booted.

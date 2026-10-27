@@ -1,0 +1,287 @@
+{
+  "schema": "8bitdo-live-probe-evidence-v1",
+  "inputs": {
+    "upload/probe-01.zip": {
+      "bytes": 3387,
+      "sha256": "c85b7d75226b4655c772fcd02906a5f3a3f5cc09785ceb29bc944f5f4fdfd932"
+    },
+    "work/8bitdo/Updatev205.pcapng": {
+      "bytes": 1259176,
+      "sha256": "e9584cce66eaf6f21b1240c52c7d688d22b2d9fe75cb7d6e4145a577bcd4410d"
+    },
+    "work/8bitdo/recovery/v2.04_decrypted.bin": {
+      "bytes": 99328,
+      "sha256": "1062b160a33888430914ff16364ee9a62517e1c2362473bb10cc4abaaed2b24b"
+    },
+    "work/8bitdo/recovery/v2.05_decrypted.bin": {
+      "bytes": 99840,
+      "sha256": "36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83"
+    },
+    "work/8bitdo/recovery/probe01/probe-01/raw_requests_replies.jsonl": {
+      "bytes": 10718,
+      "sha256": "d0940635b8b1e08bcc724831b1401332969d79ccdcc8038f614d4a3c25609f2e"
+    }
+  },
+  "finding": "The only 32-byte app-prefix mismatch is the device-specific encode-ID word at 0x0800341C; all recorded opcode-0x31 reads succeeded and repeated exactly.",
+  "scope": {
+    "live_bytes_per_pass": 104,
+    "read_requests": 12,
+    "responses": 12,
+    "accepted_responses": 12,
+    "only_transmitted_opcode": "0x31",
+    "zero_padding_after_request_address": true,
+    "hardware_access_during_this_analysis": false,
+    "flash_writes_during_this_analysis": false,
+    "firmware_version_confirmed_by_prefix": false,
+    "full_flash_capacity_confirmed": false
+  },
+  "samples": {
+    "metadata": {
+      "address": "0x08003000",
+      "bytes": 40,
+      "read_twice_equal": true,
+      "sha256": "bbf6c63ae776ce45eeb7868bf7a1ac38bf0cf38234469d92a8e2a11e52761d23",
+      "hex": "50236d957c7a01ff0f000f00000000005ab2ebb1377bf4761b06da74a9f3beb00000000000004d84",
+      "le32_words": [
+        "0x956d2350",
+        "0xff017a7c",
+        "0x000f000f",
+        "0x00000000",
+        "0xb1ebb25a",
+        "0x76f47b37",
+        "0x74da061b",
+        "0xb0bef3a9",
+        "0x00000000",
+        "0x844d0000"
+      ]
+    },
+    "boot": {
+      "address": "0x08000000",
+      "bytes": 32,
+      "read_twice_equal": true,
+      "sha256": "8d3924bbd18d416f8021c0a87e12888b8aaada1713db326f138293c8f022e027",
+      "hex": "58160020910100089d140008991200089b1400085d0200085124000895f500af",
+      "le32_words": [
+        "0x20001658",
+        "0x08000191",
+        "0x0800149d",
+        "0x08001299",
+        "0x0800149b",
+        "0x0800025d",
+        "0x08002451",
+        "0xaf00f595"
+      ]
+    },
+    "app": {
+      "address": "0x08003400",
+      "bytes": 32,
+      "read_twice_equal": true,
+      "sha256": "2a78ecfd2b7bd23949765784fbe5b76ec9d1bd7e604be7a4a37591abe78b1b21",
+      "hex": "b83f0020713500088d8c0008f1790008398c00083f43000869ba0008f975ca55",
+      "le32_words": [
+        "0x20003fb8",
+        "0x08003571",
+        "0x08008c8d",
+        "0x080079f1",
+        "0x08008c39",
+        "0x0800433f",
+        "0x0800ba69",
+        "0x55ca75f9"
+      ]
+    }
+  },
+  "metadata_matches_original_capture": {
+    "matches": true,
+    "frames": [
+      13837,
+      13841
+    ],
+    "copied_payload_lengths": [
+      23,
+      17
+    ],
+    "bytes": 40
+  },
+  "app_prefix_comparison": {
+    "reference_versions": [
+      "v2.04",
+      "v2.05"
+    ],
+    "reference_headers_equal": true,
+    "reference_32_hex": "b83f0020713500088d8c0008f1790008398c00083f43000869ba0008ffffffff",
+    "readback_32_hex": "b83f0020713500088d8c0008f1790008398c00083f43000869ba0008f975ca55",
+    "first_28_bytes_match": true,
+    "exact_32_bytes_match": false,
+    "differing_byte_count": 4,
+    "differences": [
+      {
+        "app_offset": "0x1c",
+        "address": "0x0800341c",
+        "reference_hex": "ff",
+        "readback_hex": "f9"
+      },
+      {
+        "app_offset": "0x1d",
+        "address": "0x0800341d",
+        "reference_hex": "ff",
+        "readback_hex": "75"
+      },
+      {
+        "app_offset": "0x1e",
+        "address": "0x0800341e",
+        "reference_hex": "ff",
+        "readback_hex": "ca"
+      },
+      {
+        "app_offset": "0x1f",
+        "address": "0x0800341f",
+        "reference_hex": "ff",
+        "readback_hex": "55"
+      }
+    ]
+  },
+  "application_identity_validation": {
+    "function_address": "0x0800BC64",
+    "function_file_offset": "0x00008864",
+    "function_sha256": "5e73c0bded7eafa1dfa02255cafd94acd5e389b0d6bc207c03d4d9b33256489a",
+    "uid_base": "0x1FFFF7E8",
+    "tag_base": "0x0800341C",
+    "key_table_address": "0x08018880",
+    "key_table_same_in_v204_v205": true,
+    "key_table_le32": [
+      "0x186976e5",
+      "0xcac67acd",
+      "0x38f27fee",
+      "0x0a4948f1",
+      "0xb75b7753",
+      "0x1f8ffa5c",
+      "0xbff8cf43",
+      "0xc4936167",
+      "0x92bd03f0",
+      "0x5573c6ed",
+      "0x57d8845b",
+      "0x827197ac",
+      "0xb91901c9",
+      "0x3917edfe",
+      "0xbcd6344f",
+      "0xcf9e23b5"
+    ],
+    "validation_formula": "For i=0..2, tag[i] XOR key[UID[i] & 0xF] == UID[i]; return 1 iff all three match.",
+    "equivalent_generation_formula": "tag[i] = UID[i] XOR key[UID[i] & 0xF]",
+    "uid_evidence": {
+      "source": "Original capture frame 1343 payload offsets 5..16",
+      "frame": 1343,
+      "offset": 5,
+      "words": [
+        "0x4a458fa5",
+        "0x14333337",
+        "0x3737324a"
+      ],
+      "direct_live_uid_register_read": false
+    },
+    "word_checks": [
+      {
+        "index": 0,
+        "uid": "0x4a458fa5",
+        "key_index": 5,
+        "key": "0x1f8ffa5c",
+        "predicted_tag": "0x55ca75f9",
+        "stored_address": "0x0800341c",
+        "capture_set_encode_id_word": "0x55ca75f9",
+        "prediction_equals_captured_write": true,
+        "live_readback_available": true,
+        "live_word": "0x55ca75f9",
+        "live_word_matches": true
+      },
+      {
+        "index": 1,
+        "uid": "0x14333337",
+        "key_index": 7,
+        "key": "0xc4936167",
+        "predicted_tag": "0xd0a05250",
+        "stored_address": "0x08003420",
+        "capture_set_encode_id_word": "0xd0a05250",
+        "prediction_equals_captured_write": true,
+        "live_readback_available": false,
+        "live_word": null,
+        "live_word_matches": null
+      },
+      {
+        "index": 2,
+        "uid": "0x3737324a",
+        "key_index": 10,
+        "key": "0x57d8845b",
+        "predicted_tag": "0x60efb611",
+        "stored_address": "0x08003424",
+        "capture_set_encode_id_word": "0x60efb611",
+        "prediction_equals_captured_write": true,
+        "live_readback_available": false,
+        "live_word": null,
+        "live_word_matches": null
+      }
+    ],
+    "predicted_12_le_bytes_hex": "f975ca555052a0d011b6ef60",
+    "captured_programming_command": {
+      "frame": 13831,
+      "pcap_payload_offset": 1240587,
+      "wire_prefix_20_hex": "1300160f00060c00f975ca555052a0d011b6ef60",
+      "payload_command": "0x06",
+      "payload_bytes": 12
+    },
+    "unread_words_explicitly_predicted_only": [
+      "0x08003420 = 0xD0A05250",
+      "0x08003424 = 0x60EFB611"
+    ]
+  },
+  "boot_tag_corroboration": {
+    "live_address": "0x0800001C",
+    "live_word": "0xaf00f595",
+    "capture_frame": 1343,
+    "capture_tag_group_offset": 17,
+    "capture_triplet": [
+      "0xaf00f595",
+      "0xa22eec9e",
+      "0x65205dd8"
+    ],
+    "first_word_matches_live": true,
+    "live_words_at_08000020_and_08000024": "Not read in probe-01. Capture group suggests A22EEC9E and 65205DD8; awaits full dump."
+  },
+  "reserved_vector_evidence": {
+    "application_tag_triplet": "0x0800341C..0x08003427 verified by application code as UID-derived identity data; only first four bytes read live.",
+    "boot_tag_triplet": "Application function 0x0800BBE8 reads 0x0800001C/20/24 into verification response; probe confirms first word.",
+    "boot_word_08000034": "Application function 0x08005FA8 uses this word as a model/revision discriminator, comparing 0x01FF0101 and 0x01FF0201. Not read live.",
+    "other_reserved_words": "No blanket exemption from reference comparison is justified."
+  },
+  "status_interpretation": {
+    "recorded_error": "App header does not match the explicitly supplied reference",
+    "exception_stage": "After all 12 accepted reads; exact application-reference check only.",
+    "recorded_standalone_read_succeeded_false": "Bookkeeping flag was not set before reference-check exception. Raw requests/replies establish the actual successful reads.",
+    "arbitrary_range_validated": false
+  },
+  "next_read_only_step": {
+    "start": "0x08000000",
+    "length": "0x20000",
+    "end_exclusive": "0x08020000",
+    "description": "Candidate 128 KiB main-flash read, using existing serialized opcode-0x31 path and two matching passes. Full-range acceptance and capacity remain unverified until examined.",
+    "must_preserve": [
+      "Raw request/reply transcript",
+      "Both complete read passes or partials on failure",
+      "Original probe files",
+      "Per-file SHA256 values"
+    ],
+    "checks_after_success": [
+      "Compare all 0x18600 application bytes with v2.05 and explicitly account for the three UID-derived tag words and any remaining differences.",
+      "Confirm both boot/app tag triplets and the boot model word.",
+      "Compare low/high 64 KiB for aliasing and inspect known application code above 0x08010000.",
+      "Disassemble bootloader read/write handlers, destination bounds and erase policy before considering any firmware writer.",
+      "Preserve metadata and any non-application data outside update range.",
+      "Do not infer that a main-flash dump includes option bytes or factory system ROM."
+    ]
+  },
+  "limitations": [
+    "The first 32 application bytes do not distinguish v2.04 from v2.05.",
+    "The bootloader handler that physically programs the tag has not yet been recovered.",
+    "The three 32/40-byte probe areas do not prove every requested address range is readable.",
+    "Frame 1343 predates the captured update; its final triplet is not asserted to be current installed app identity."
+  ]
+}

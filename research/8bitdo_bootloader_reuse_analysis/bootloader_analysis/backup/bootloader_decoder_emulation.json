@@ -1,0 +1,93 @@
+{
+  "schema": "8bitdo-original-bootloader-decoder-emulation-v1",
+  "bootloader_source_sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6",
+  "bootloader_prefix_0x3000_sha256": "8d733de72baf8cc04ce3ada92e3df39be405b55587a749514c0c756eaad38692",
+  "unicorn_version": "2.1.4",
+  "cryptdo8_source_sha256": "6701ba2b6089c47686b2785e1c5729e8533ef1102e1f7cdde904bad9b73167bc",
+  "original_code": {
+    "initializer": "0x0800090c",
+    "wrapper": "0x080026c4",
+    "inner": "0x080027f8",
+    "seed_table": "0x0800284c",
+    "seed_table_bytes": 512
+  },
+  "emulator_configuration": {
+    "flash": "0x08000000..0x0801ffff, read/execute",
+    "ram": "0x20000000..0x20004fff, read/write, initially zero",
+    "stack": "0x20004000",
+    "globals": "0x20000034",
+    "buffer": "0x20000178",
+    "return_sentinel": "0x08002bf0",
+    "wrapper_arguments": "r0=buffer, r1=cumulative encrypted payload byte offset, r2=chunk byte count <=512",
+    "other_regions_mapped": false,
+    "peripheral_stubs": false,
+    "instruction_limit_per_call": 100000,
+    "init_called_once_per_case": true,
+    "flash_protected_against_emulated_writes": true
+  },
+  "cases": [
+    {
+      "name": "captured_v2.05",
+      "bytes": 99840,
+      "block_count": 195,
+      "every_block_matches": true,
+      "complete_result_matches": true,
+      "ciphertext_sha256": "a5020e9402452938c94887eaaf4e05ae1196650695df1ae6cc0dffc7a9db5d82",
+      "expected_plaintext_sha256": "36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83",
+      "emulated_result_sha256": "36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83",
+      "initialized_globals_le32": [
+        "0x00000001",
+        "0x00000009",
+        "0x00000012",
+        "0x00000003",
+        "0x92a753fa",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "executed_instructions": 383972,
+      "original_inner_calls": 195,
+      "normal_returns_and_restored_stack": true,
+      "executed_only_original_init_wrapper_inner": true
+    },
+    {
+      "name": "synthetic_custom_plaintext",
+      "bytes": 1536,
+      "block_count": 3,
+      "every_block_matches": true,
+      "complete_result_matches": true,
+      "ciphertext_sha256": "2191a716e99f6e5c6d847866dceafa1ac505f35282c659ce6d18f6eaa9c482b3",
+      "expected_plaintext_sha256": "00c5061975f65c4f03f23d54d0e476de808e64850667e7a30f6e705d6928d3e3",
+      "emulated_result_sha256": "00c5061975f65c4f03f23d54d0e476de808e64850667e7a30f6e705d6928d3e3",
+      "initialized_globals_le32": [
+        "0x00000001",
+        "0x00000009",
+        "0x00000012",
+        "0x00000003",
+        "0x92a753fa",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "executed_instructions": 5924,
+      "original_inner_calls": 3,
+      "normal_returns_and_restored_stack": true,
+      "executed_only_original_init_wrapper_inner": true
+    }
+  ],
+  "synthetic_fixture": {
+    "bytes": 1536,
+    "plaintext_formula": "byte[i] = ((i*73) XOR (i>>3) XOR 0xA5) & 0xFF, i=0..1535",
+    "encryption": "cryptdo8.encrypt_payload(LE32 words, cryptdo8.GD32())",
+    "purpose": "Arbitrary-content decoder compatibility test; not a deployable application image."
+  },
+  "interpretation": "The installed original bootloader decoder recovers both the captured distributed firmware and independently encrypted arbitrary synthetic content exactly. Its own initializer and seed-table addressing are executed without replacement.",
+  "scope_of_signature_finding": "The inspected decoder branches on chunk lengths/counters, not decoded payload contents, and contains no payload-signature or UID validation. This does not by itself establish full update-handler or startup acceptance; those paths are analyzed separately.",
+  "hardware_access": false,
+  "update_or_flash_program_handler_executed": false,
+  "source_and_files_read_only_except_local_report": true
+}

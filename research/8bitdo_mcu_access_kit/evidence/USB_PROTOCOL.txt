@@ -1,0 +1,190 @@
+HISTORICAL PROTOCOL ANALYSIS: initial capture-only findings.
+The later user probe confirms metadata, boot-header and application-header
+reads; see PROBE01_ANALYSIS.txt and updater_id_crosscheck.txt for that update.
+Full-range reads and write/erase capability remain unverified.
+
+# 8BitDo receiver USB readback evidence
+
+Analysis date: 2026-10-25. Sources are the user's `Updatev205.pcapng`, the native `8BitDoFirmwareUpdaterTools.dll`, and the recovered v2.05 application. These notes describe static analysis and recorded traffic. No request has been sent to physical hardware during this analysis.
+
+## What is established
+
+The captured update-mode device is a custom USB HID device, VID `0483`, PID `5760`, interface 0. It exposes interrupt IN `0x82` and interrupt OUT `0x01`, both 64-byte maximum packets with a 2 ms polling interval. The HID report descriptor contains unnumbered 64-byte input and output reports. This is not the USB DFU class interface used directly by `dfu-util`.
+
+There **is an address-bearing read operation** in the recorded protocol. The Windows updater uses subtype `0x31` to obtain 40 bytes from `0x08003000`, in a 23-byte read followed by a 17-byte read. It then sends exactly those 40 bytes back to the same address using subtype `0x32`. This is stronger evidence than a generic firmware-write-only protocol, but it does not establish that reads or writes outside that metadata area are accepted by the target.
+
+Both recorded reads occur after the firmware payload transfer and the encode-ID command. The capture does not establish that a newly entered update-mode session permits `0x31` without that earlier sequence. A read-only probe must stop if the command is rejected or times out; it should not try to reproduce the preceding firmware update as an implicit prerequisite.
+
+## Source files and locations
+
+* `selected_capture_packets.json`: exact wire bytes and frame numbers, including descriptors and both reads.
+* `read_metadata_08003000_40bytes.bin`: the exact 40 bytes copied by the updater from the two responses.
+* `native_read_write_transport.asm`: native DLL disassembly for the HID transport and metadata read/write routines. Addresses below are PE virtual addresses, with image base `0x10000000`.
+* Upstream primary-source comparison (not bundled): the public fwupd ebitdo plugin at https://github.com/fwupd/fwupd/tree/main/plugins/ebitdo. Its device code and packet definitions corroborate the custom fields, endpoints, 64-byte interrupt transfers and ordinary update command names. They do **not** implement or document the `0x31` / `0x32` operations found here.
+
+The capture SHA-256 is `e9584cce66eaf6f21b1240c52c7d688d22b2d9fe75cb7d6e4145a577bcd4410d`.
+
+## Descriptor evidence
+
+Frame 1326 device descriptor:
+
+```
+12 01 00 02 00 00 00 40 83 04 60 57 00 02 01 02 03 01
+```
+
+Frame 1330 configuration descriptor:
+
+```
+09 02 29 00 01 01 00 c0 f0
+09 04 00 00 02 03 00 00 00
+09 21 10 01 00 01 22 21 00
+07 05 82 03 40 00 02
+07 05 01 03 40 00 02
+```
+
+The interface class byte is `03` (HID), subclass and protocol are zero. There is no DFU interface or DFU functional descriptor in this configuration.
+
+Frame 1336 HID report descriptor:
+
+```
+05 8c 09 01 a1 01
+09 03 15 00 26 00 ff 75 08 95 40 81 02
+09 04 15 00 26 00 ff 75 08 95 40 91 02
+c0
+```
+
+There is no Report ID item. The HID API's leading zero report-ID byte is not part of the 64-byte USB interrupt payload.
+
+## Read request: subtype 0x31
+
+The wire report is 64 bytes. All multibyte numeric fields below are little-endian. Structurally, bytes 0 and 1 are separate fields, not a 16-bit length; the observed type is always zero here.
+
+| Wire offset | Width | Meaning in this operation |
+| --- | ---: | --- |
+| 0 | 1 | Packet-length field, `0x08` |
+| 1 | 1 | Packet type, `0x00` |
+| 2 | 1 | Subtype, `0x31` |
+| 3 | 2 | Command-length field, requested data count `n + 4` |
+| 5 | 4 | Requested flash address |
+| 9 | 55 | Unused by the native request constructor; old buffer contents appear in the capture |
+
+The demonstrated data counts are `n=23` and `n=17`. For a conservative probe, a maximum of 23 data bytes per request stays within the largest observed read. The DLL's continuation code contains a cap of 27 before adding four, but a successful 27-byte read is not demonstrated by this capture.
+
+Known successful request prefixes:
+
+```
+frame 13835: 08 00 31 1b 00 00 30 00 08  # n=23, address 0x08003000
+frame 13839: 08 00 31 15 00 17 30 00 08  # n=17, address 0x08003017
+```
+
+Candidate first boot-vector read, which has **not** been tested on hardware:
+
+```
+08 00 31 1b 00 00 00 00 08              # n=23, address 0x08000000
+```
+
+Use a zero-filled 64-byte buffer with the nine meaningful bytes populated. The original sends stale data after byte 8, and no authentication or checksum field is constructed there by the native routine. Zero padding is the natural implementation, but its acceptance remains part of the hardware experiment.
+
+## Read response and payload extraction
+
+The two recorded successful replies are also 64-byte reports:
+
+| Wire offset | Width | Observed value / interpretation |
+| --- | ---: | --- |
+| 0 | 1 | Packet-length field equals `n + 9` in both captured replies |
+| 1 | 1 | Type `0x00` |
+| 2 | 1 | ACK subtype `0x14` |
+| 3 | 2 | Command-length field `n + 4` |
+| 5 | n | Bytes the Windows updater copies into its metadata buffer |
+| 5+n | 4 | Not consumed by the read routine; do not include in the dump |
+| 9+n | remainder | Padding / unused report bytes |
+
+Frame 13837, first read:
+
+```
+20 00 14 1b 00
+50 23 6d 95 7c 7a 01 ff 0f 00 0f 00 00 00 00 00 5a b2 eb b1 37 7b f4
+d0 11 b6 ef
+00 ...
+```
+
+Frame 13841, second read:
+
+```
+1a 00 14 15 00
+76 1b 06 da 74 a9 f3 be b0 00 00 00 00 00 00 4d 84
+b2 eb b1 37
+00 ...
+```
+
+The first reply's four excluded bytes (`d0 11 b6 ef`) differ from the first four bytes obtained by the next read at the immediately following address (`76 1b 06 da`). The second excluded group (`b2 eb b1 37`) repeats part of the prior reply. Thus they cannot simply be treated as four more contiguous flash bytes. Their values are consistent with stale buffer contents, but the target implementation is unavailable and their purpose is not proved. The DLL performs no checksum or CRC calculation over them.
+
+Concatenating exactly the payload spans copied by the DLL gives:
+
+```
+50 23 6d 95 7c 7a 01 ff 0f 00 0f 00 00 00 00 00
+5a b2 eb b1 37 7b f4 76 1b 06 da 74 a9 f3 be b0
+00 00 00 00 00 00 4d 84
+```
+
+This byte string belongs to this captured session; another device, or the same device after subsequent use, need not have identical metadata.
+
+## Native implementation and integrity limits
+
+The read routine is `0x10009D00` through `0x10009E6B`.
+
+1. Zero the 40-byte destination at `0x101D59C4`.
+2. Construct request `08 00 31 1B 00 00 30 00 08` in the global transmit buffer at `0x101D5A78`.
+3. Call `WriteHid(buffer, 64)`, then record pending subtype `0x31` in `0x101CCA9E`.
+4. Repeatedly call `ReadHid(response, 64)` into `0x101D5A38`. On nonzero return (such as timeout), exit.
+5. Only accept type byte 1 equal to zero and subtype byte 2 equal to `0x14`, with the local pending subtype still `0x31`.
+6. Read the 16-bit field at response offset 3, subtract four, and copy that many bytes from response offset 5 to the destination.
+7. If fewer than 40 bytes have accumulated, advance the requested address by the accumulated count and send a follow-up request. The recorded follow-up has `n=17`.
+
+The routine does not check the response's first length byte; does not echo-check an address or request sequence; does not compare the returned count with the requested count; and does not validate an application-level CRC or checksum. It does not explicitly decode NAK: nonmatching replies are skipped until an accepted ACK or a read timeout.
+
+A new read-only client should be stricter than this implementation: require an exact 64-byte response, the expected type/subtype, and the exact expected command length; validate the observed packet-length formula; use only the requested payload span; stop on unexpected data; and keep raw transcripts. Repeat reads and compare results. Since there is no echoed address or sequence number, avoid pipelining requests. A stale matching ACK could otherwise be misattributed.
+
+The routine does not introduce cryptographic state into these requests, but that is not proof that the bootloader accepts them in every session state. The only captured use follows an update. There is no evidence yet for or against target-side address restrictions, readout-protection effects, or a fresh-session prerequisite.
+
+## Windows HID API versus HIDAPI
+
+The ordinary unnumbered-report path in `WriteHid`, `0x100053A0` through `0x100054FB`, prepends byte zero to the 64-byte report and passes 65 bytes to Windows `WriteFile`. The corresponding `ReadHid`, `0x10005720` through `0x100058EC`, asks Windows for 65 bytes and strips the leading API report-ID byte before returning 64 report bytes. Its wait timeout is 300 ms.
+
+For the conventional HIDAPI API, `write` similarly receives `b'\x00' + report64`; `read(64)` on an unnumbered HID input report returns the 64 data bytes. The capture contains only those 64 wire bytes, without the synthetic leading zero.
+
+## Write subtype 0x32: scope of the evidence
+
+Native routine `0x10009C60` through `0x10009CFD` takes a pointer to 40 bytes, uses a hardcoded destination `0x08003000`, and emits:
+
+```
+30 00 32 2c 00 00 30 00 08 [40 bytes]
+```
+
+Frame 13843 contains exactly this, with the same 40 bytes just read, byte-for-byte. It does not prove an arbitrary-address or bootloader-programming interface. The DLL checks only whether `WriteHid` succeeded at the host transport layer and does not wait for a target ACK inside this routine. No separate ACK to this operation is apparent before the following get-version request.
+
+This command must not appear in the read-only probe. There is no basis here to offer a general bootloader-write or whole-chip-erase operation over USB.
+
+## Stock firmware disables the debug port
+
+The recovered application at base `0x08003400` explicitly disables both JTAG and SWD during GPIO initialization:
+
+```
+0x08005914  movs r1, #1
+0x08005916  ldr  r0, [pc, #0x1c]  ; literal at 0x08005934 = 0x00300400
+0x08005918  bl   0x08005A00
+```
+
+Helper `0x08005A00` reads `AFIO_PCF0` at `0x40010004`. For argument `0x00300400`, it clears mask `0x07000000`, then ORs `0x04000000`, and writes the register back. This sets `SWJ_CFG[2:0]` to `100`: both JTAG-DP and SW-DP are disabled. It is not merely the common JTAG-only disable that leaves SWD available.
+
+The relevant instructions are in `gpio_disassembly_annotated.txt` under GPIO setup and GPIO helpers. The GPIO setup and helper regions are identical in the recovered v2.04 and v2.05 applications. The other remap call at `0x08011222` configures the timer path for PB5 and does not restore debug access.
+
+Therefore, connecting a debug probe under reset is justified by firmware evidence. An ordinary attach failure after the application starts is not, by itself, evidence of flash read protection. The board's actual option bytes and debug readability still need to be measured on the physical MCU.
+
+## What a custom application could change
+
+The recorded update covers the application beginning at `0x08003400`; it is not a backup of low flash. The `.dat` and USB payload can be decrypted and re-encrypted exactly with the recovered GD32 codec, but this alone does not prove that a new custom image will pass every bootloader check.
+
+If an appropriately linked custom application is accepted and runs, it could potentially read lower internal flash and export it over USB or UART, while leaving the old bootloader in place. It could also leave SWD enabled. That is a plausible fallback to direct `0x31` readback, subject to target acceptance and flash/protection behavior. Do not assume that changing the update header destination to zero makes the stock updater a safe bootloader replacement tool.
+
+Replacing the bootloader would be a separate operation requiring a verified backup, identified flash protection/erase behavior, a correct replacement reset/vector path, and a recovery method. Neither the captured metadata write nor the recovered application provides sufficient evidence to claim unrestricted USB bootloader rewrite support.

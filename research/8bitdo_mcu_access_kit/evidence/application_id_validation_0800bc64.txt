@@ -1,0 +1,124 @@
+Application identity validation in the recovered v2.05 image
+==========================================================
+
+Source: recovery/v2.05_decrypted.bin, loaded at 0x08003400.
+SHA256: 36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83
+All code addresses below are MCU addresses. Code is Thumb, little-endian.
+This analysis reads local files only. It does not access the receiver.
+
+Function 0x0800BC64, code through 0x0800BCA9
+------------------------------------------
+
+0800bc64  push  {r4,r5,r6,r7,lr}
+0800bc66  ldr   r0,[pc,#0x44]           ; literal 0x0800BCAC = 0x1FFFF7E8: UID base
+0800bc68  ldr   r3,[pc,#0x44]           ; literal 0x0800BCB0 = 0x0800341C: app tag base
+0800bc6a  ldr   r6,[pc,#0x48]           ; literal 0x0800BCB4 = 0x08018880: key table
+0800bc6c  ldrd  r2,r1,[r0]             ; r2 = UID[0], r1 = UID[1]
+0800bc70  ldrd  r5,r4,[r3]             ; r5 = tag[0], r4 = tag[1]
+0800bc74  and   r7,r2,#0xF             ; index = low nibble of UID[0]
+0800bc78  ldr   r0,[r0,#8]             ; r0 = UID[2]
+0800bc7a  ldr.w r7,[r6,r7,lsl #2]      ; r7 = key[UID[0] & 15]
+0800bc7e  ldr   r3,[r3,#8]             ; r3 = tag[2]
+0800bc80  eors  r7,r5                  ; decode first tag word
+0800bc82  cmp   r7,r2                  ; must equal UID[0]
+0800bc84  bne   0x0800BCA2             ; failure
+0800bc86  and   r2,r1,#0xF
+0800bc8a  ldr.w r2,[r6,r2,lsl #2]      ; key[UID[1] & 15]
+0800bc8e  eors  r2,r4
+0800bc90  cmp   r2,r1                  ; decoded tag[1] must equal UID[1]
+0800bc92  bne   0x0800BCA2
+0800bc94  and   r1,r0,#0xF
+0800bc98  ldr.w r1,[r6,r1,lsl #2]      ; key[UID[2] & 15]
+0800bc9c  eors  r1,r3
+0800bc9e  cmp   r1,r0                  ; decoded tag[2] must equal UID[2]
+0800bca0  beq   0x0800BCA6
+0800bca2  movs  r0,#0                  ; return false
+0800bca4  pop   {r4,r5,r6,r7,pc}
+0800bca6  movs  r0,#1                  ; return true
+0800bca8  pop   {r4,r5,r6,r7,pc}
+
+Equivalent logic:
+
+  for i in 0..2:
+      if (tag[i] XOR key[UID[i] & 15]) != UID[i]:
+          return false
+  return true
+
+Thus the expected stored tag is UID[i] XOR key[UID[i] & 15]. This establishes
+the role of all three words at 0x0800341C, 0x08003420 and 0x08003424 independently
+of the Windows updater analysis. It does not reveal the bootloader instructions
+that program those words; that code is not in this application update.
+
+The caller at 0x0801643A calls this validator, compares the result with zero at
+0x08016440, and branches on failure to 0x080164C6. That path disables SysTick,
+makes two delayed calls to 0x08010DB4, and loops forever at 0x080164E4.
+
+Key table at 0x08018880
+----------------------
+
+Index   Little-endian 32-bit value
+  0     186976E5
+  1     CAC67ACD
+  2     38F27FEE
+  3     0A4948F1
+  4     B75B7753
+  5     1F8FFA5C
+  6     BFF8CF43
+  7     C4936167
+  8     92BD03F0
+  9     5573C6ED
+  A     57D8845B
+  B     827197AC
+  C     B91901C9
+  D     3917EDFE
+  E     BCD6344F
+  F     CF9E23B5
+
+These 64 bytes are identical at this address in recovered v2.04 and v2.05.
+
+Independent arithmetic for the supplied receiver
+------------------------------------------------
+
+Original capture frame 1343, wire offsets 5..16, supplies the UID words:
+  4A458FA5  14333337  3737324A
+
+  UID[0] 4A458FA5 XOR key[5] 1F8FFA5C = 55CA75F9
+  UID[1] 14333337 XOR key[7] C4936167 = D0A05250
+  UID[2] 3737324A XOR key[A] 57D8845B = 60EFB611
+
+The corresponding 12 little-endian bytes are:
+  F9 75 CA 55 50 52 A0 D0 11 B6 EF 60
+
+These match original capture frame 13831, wire offsets 8..19, exactly. That
+frame starts 13 00 16 0F 00 06 0C 00: the updater's 12-byte SET_ENCODE_ID command.
+
+Both live 32-byte app reads in probe-01.zip contain F9 75 CA 55 at 0x0800341C.
+The recovered distribution images instead have FF FF FF FF at that word.
+The other first 28 bytes match exactly. No other differences exist in this
+32-byte comparison, and the headers of v2.04 and v2.05 are identical here.
+
+Explicitly not yet read live:
+  0x08003420: expected D0A05250, predicted from code and captured write.
+  0x08003424: expected 60EFB611, predicted from code and captured write.
+
+These predictions must not be presented as live readback results. The requested
+full-range read will include them without enlarging the preliminary probe.
+
+Other reserved vector data
+--------------------------
+
+Function 0x0800BBE8 constructs an identity response. Instructions 0x0800BC08..
+0x0800BC14 copy the three words at 0x0800001C/20/24, and instructions 0x0800BC16..
+0x0800BC22 copy the three at 0x0800341C/20/24. The first captured boot tag word,
+AF00F595, agrees with both current live boot reads at 0x0800001C. The boot words
+at +0x20 and +0x24 are outside the probe and remain unconfirmed live.
+
+Another reserved vector word has a separate role: application code at
+0x08005FE0 reads boot address 0x08000034 and compares it with 01FF0101 and
+01FF0201. Its surrounding code changes Bluetooth-address construction.
+Therefore no blanket exclusion of every reserved vector word is justified.
+
+Machine-readable byte differences, source hashes, independently validated
+request/response counts, capture offsets and predicted words are recorded in
+live_probe_evidence.json. The existing updater_id_crosscheck.txt separately
+documents the Windows DLL's matching generation formula and boot key table.

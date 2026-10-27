@@ -1,0 +1,193 @@
+{
+  "firmware": "v2.05_decrypted.bin",
+  "tests": [
+    {
+      "name": "Original board initialization",
+      "PA1_CTL_nibble": 8,
+      "PA1_output_latch_pullup": true,
+      "PB5_CTL_nibble": 1,
+      "writes": [
+        {
+          "pc": "0x08005986",
+          "address": "0x40010810",
+          "size": 4,
+          "value": "0x00000002"
+        },
+        {
+          "pc": "0x0800598E",
+          "address": "0x40010800",
+          "size": 4,
+          "value": "0x44444484"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010804",
+          "size": 4,
+          "value": "0x44444494"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010804",
+          "size": 4,
+          "value": "0x44444494"
+        },
+        {
+          "pc": "0x0800598E",
+          "address": "0x40010800",
+          "size": 4,
+          "value": "0x44444984"
+        },
+        {
+          "pc": "0x0800598E",
+          "address": "0x40010800",
+          "size": 4,
+          "value": "0x44444984"
+        },
+        {
+          "pc": "0x0800598E",
+          "address": "0x40010C00",
+          "size": 4,
+          "value": "0x44144444"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010C04",
+          "size": 4,
+          "value": "0x44444441"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010C04",
+          "size": 4,
+          "value": "0x44444411"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010C04",
+          "size": 4,
+          "value": "0x44244411"
+        },
+        {
+          "pc": "0x08005A64",
+          "address": "0x40010C14",
+          "size": 4,
+          "value": "0x00002000"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010C04",
+          "size": 4,
+          "value": "0x24244411"
+        },
+        {
+          "pc": "0x080059C6",
+          "address": "0x40010C10",
+          "size": 4,
+          "value": "0x00000400"
+        },
+        {
+          "pc": "0x080059C6",
+          "address": "0x40010C10",
+          "size": 4,
+          "value": "0x00000800"
+        },
+        {
+          "pc": "0x080059CE",
+          "address": "0x40010C04",
+          "size": 4,
+          "value": "0x24248811"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 4,
+      "on_argument": 0,
+      "writes": [
+        {
+          "pc": "0x08005A5A",
+          "address": "0x40010C10",
+          "size": 4,
+          "value": "0x00000020"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 4,
+      "on_argument": 1,
+      "writes": [
+        {
+          "pc": "0x08005A56",
+          "address": "0x40010C14",
+          "size": 4,
+          "value": "0x00000020"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 2,
+      "on_argument": 0,
+      "writes": [
+        {
+          "pc": "0x08005A5A",
+          "address": "0x40010C10",
+          "size": 4,
+          "value": "0x00000100"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 2,
+      "on_argument": 1,
+      "writes": [
+        {
+          "pc": "0x08005A56",
+          "address": "0x40010C14",
+          "size": 4,
+          "value": "0x00000100"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 1,
+      "on_argument": 0,
+      "writes": [
+        {
+          "pc": "0x08005A5A",
+          "address": "0x40010C10",
+          "size": 4,
+          "value": "0x00000200"
+        }
+      ]
+    },
+    {
+      "name": "Original indicator dispatcher",
+      "logical_channel": 1,
+      "on_argument": 1,
+      "writes": [
+        {
+          "pc": "0x08005A56",
+          "address": "0x40010C14",
+          "size": 4,
+          "value": "0x00000200"
+        }
+      ]
+    },
+    {
+      "name": "Original GPIO read helper PA1",
+      "input_level": 0,
+      "returned_level": 0
+    },
+    {
+      "name": "Original GPIO read helper PA1",
+      "input_level": 1,
+      "returned_level": 1
+    }
+  ],
+  "method": "Execute original Thumb code with Unicorn and a minimal GPIO BOP/BC output-latch model; no physical board access.",
+  "all_passed": true
+}

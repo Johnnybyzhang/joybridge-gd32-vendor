@@ -1,0 +1,72 @@
+# Independent HCI UART analysis, v2.05
+
+## Pins and peripheral
+
+The Bluetooth host interface is the MCU peripheral at **0x40004400**, named **USART1 in GD32's numbering** (equivalent register address to **USART2 in STM32F103 naming**). With the configured default mapping, **PA2 is MCU TX → radio RX**, and **PA3 is MCU RX ← radio TX**. Use the GD32F103C8T6 LQFP48 datasheet for package pad numbers.
+
+Board GPIO setup at 0x08005872–0x08005894 configures PA2 (mask4) alternate-function push-pull and PA3 (mask8) floating input. Only two calls to the AFIO remap routine0x08005A00 exist in this image, at0x08005918 (constant0x00300400) and0x08011222 (constant0x001A0800 for LED PWM); neither selects the USART1/STM32 USART2 alternate pins.
+
+PA9/PA10 are also configured as alternate output/input in the board initializer, but there is no active USART configuration or data transfer targeting the peripheral at0x40013800 in the traced HCI path. The only literal0x40013800 in the image is a comparison inside the generic baud calculator to choose APB2 versus APB1. Do not present PA9/PA10 as proven active debug UART based solely on their GPIO setup.
+
+## Baud and framing
+
+Initial UART setup at0x0800B2A8 builds this structure for0x40004400:
+
+- Requested baud:0x0001C200 = **115,200 baud**.
+- Word length:0 (8 bits).
+- Stop field:0 (one stop bit).
+- Parity:0 (none).
+- RX/TX mode:0x000C (both enabled).
+- Hardware flow control:0 (RTS and CTS disabled).
+
+Setter0x080041C0 builds the same8N1/no-flow-control structure with baud supplied inr0. Generic initializer0x0800B35C explicitly clears control-register bits0x0300 atbase+0x14 before OR-ing the zero flowcontrol field, confirming both RTS/CTS disabled.
+
+Controller initialization0x08016640 performs:
+
+1. Set MCU UART to115,200 via0x080041C0.
+2. Run radio reset/configuration routine0x08009524.
+3. Load0x0016E360 = **1,500,000**.
+4. Call0x080165F0, which sends the two-entry vendor write table at0x0801AF24 through0x08009768 →0x080166FC →0x0800B268 → USART TX DMA.
+5. Set MCU UART to1,500,000 via0x080041C0.
+
+The table is exactly:
+
+| Address | Value |
+|---|---|
+|0x80000060|0x0016E360 (1,500,000)|
+|0x80000040|0x0602B300|
+
+The emitted H4 vendor-command bytes, derived directly from the builder, are:
+
+```text
+01 02 FD 0A 80 01 60 00 00 80 60 E3 16 00
+01 02 FD 0A 80 01 40 00 00 80 00 B3 02 06
+```
+
+The table writer waits5 units through routine0x08018520 after each command; the unit should be established separately before presenting this as a timing specification. The second radio-register value's detailed semantics are not recovered here. The final requested operating rate is1.5Mbaud; actual rate depends on the firmware clock tree and calculated baud divisor, which root is checking separately.
+
+## Proof this is the HCI path
+
+- TX routine0x08003FBC programs DMA with peripheral destination0x40004404 (this UART's data register), user buffer and length. Two higher-level send entry points0x0800B264 and0x0800B268 tail-call it.
+- H4 send wrapper0x0801444C inserts the passed packet-type byte before the payload, then invokes0x0800B264. Command send path0x08014C32 explicitly supplies type1.
+- Vendor command builder0x08016664 creates leading bytes01 02 FD, i.e. H4 Command and vendor opcode0xFD02, then sends through0x0800B268.
+- RX DMA0x08003F4C reads peripheral0x40004404 into a1KiB buffer at0x200006BB. Interrupt fallback0x0800B5D8 likewise reads0x40004404.
+- Parser0x08014488 accepts packet type4 with2-byte event header and one-byte event length, and packet type2 with4-byte ACL header and16-bit length. Dispatcher0x0801437C routes type4 to0x0800D638 and type2 to0x0800CB40 after removing the H4 type byte.
+
+This establishes H4 command/event/ACL transport throughPA2/PA3, rather than merely identifying a configured serial port.
+
+## Additional radio lines
+
+PB13 is controlled by0x08009758 (GPIOB mask0x2000). The radio initialization0x08009524 drives this line low, delays, performs radio register setup, then drives it high and delays before further initialization. This is consistent with active-low radio reset or enable control. Exact target-pad identity (RESET versus enable) requires the RDA5876 pinout or electrical continuity; the firmware alone establishes the GPIO, polarity and sequencing.
+
+PB10/PB11 form a separate software-driven two-wire bus used during initial radio configuration: mask0x400 is clock andmask0x800 is bidirectional data. These do not serve as UART RTS/CTS in this firmware.
+
+## RGB correction
+
+The user has established that the installed indicator is physicallyRGB. All three generic active-low channels therefore matter: logicalmask1→PB9,2→PB8,4→PB5. Previous wording that implied onlyPB5 is physically connected was too strong. PB5 is selected by the examined normal patterns and PWM path, but that does not invalidate the other channels. The code inspected here contains no reliable labels establishing which die is red/green/blue; do not assign colors by conventional bit order.
+
+
+Final hardware-reference clarification: the plain RDA5876 datasheet calls
+its relevant control input LDO_ON (pin16), not a separate nRESET. PB13 is
+firmware-confirmed MCU radio startup control; its exact RDA endpoint is an
+inference until PCB continuity is measured. See main README.

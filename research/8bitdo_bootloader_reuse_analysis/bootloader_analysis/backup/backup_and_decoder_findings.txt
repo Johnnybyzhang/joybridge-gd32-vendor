@@ -1,0 +1,120 @@
+Offline validation of backup-01 and original bootloader decoder
+==============================================================
+
+1. Complete readback evidence
+
+flash_pass1.bin, flash_pass2.bin and flash_backup.bin are each exactly 131072
+bytes and byte-identical. Their SHA256 is:
+  e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6
+
+The raw transcript contains 11,410 ordered request/response/accepted triplets:
+12 preliminary probe reads, then 5,699 chunks for each full pass. The independent
+validator checked every request address, contiguous coverage, 23-byte maximum
+chunk length, request padding, HID report-ID prefix, response framing, and each
+accepted payload byte against the saved file. Both complete passes cover
+0x08000000 through 0x0801FFFF exactly once per byte. All transmitted commands in
+this transcript are opcode 0x31. No missing, repeated-address or out-of-order
+chunk was accepted by this validation.
+
+This establishes the captured readback, not device behavior under other
+protection states or a destructive flash erase/program test.
+
+2. Installed application identity
+
+The 99,840 application bytes at 0x08003400..0x0801B9FF differ from the decrypted
+v2.05 distribution image at exactly 16 bytes, in two spans:
+
+  0x0800341C..0x08003427
+    distribution: FF FF FF FF FF FF FF FF FF FF FF FF
+    installed:    F9 75 CA 55 50 52 A0 D0 11 B6 EF 60
+    meaning:      three previously predicted UID-derived identity words
+
+  0x08003434..0x08003437
+    distribution: FF FF FF FF
+    installed:    CD 00 00 00
+    meaning:      installed version 205 (little-endian uint32)
+
+All other application bytes match v2.05 exactly. Comparing the corresponding
+99,328 bytes with v2.04 gives 3,762 differing bytes. Exact differing spans are in
+v2.05_differences.csv and v2.04_differences.csv.
+
+The previously unread application identity words are now confirmed live:
+  0x08003420 = 0xD0A05250
+  0x08003424 = 0x60EFB611
+
+All three bootloader identity words are also confirmed:
+  0x0800001C = 0xAF00F595
+  0x08000020 = 0xA22EEC9E
+  0x08000024 = 0x65205DD8
+
+Boot address 0x08000034 contains 200 (0x000000C8). The reserved words at
+0x08000028 and 0x08003428 are still 0xFFFFFFFF. Do not treat all reserved vector
+words as interchangeable or exempt them all from comparison.
+
+3. Additional main-flash contents and upper-address evidence
+
+The metadata page is 0x08003000..0x080033FF. Its first 40 bytes exactly match
+both the preliminary probe and the original update capture. Bytes 0x08003028..
+0x0800302F are eight zeros. Bytes 0x08003030..0x080033FF are all 0xFF.
+
+The entire tail 0x0801BA00..0x0801FFFF is 0xFF in both full passes. Preserve it
+as part of the backup, even though it contains no programmed bytes now.
+
+The lower and upper 64 KiB halves differ at 64,248 byte positions. In addition,
+the complete upper application range 0x08010000..0x0801B9FF (47,616 bytes)
+matches v2.05 exactly. This rules out a simple 64 KiB read alias and demonstrates
+distinct readable application contents above the nominal C8 64 KiB boundary.
+It does not read the factory flash-density register or qualify erase/program
+behavior in the upper region. A main-flash dump does not include option bytes,
+factory system ROM or UID registers.
+
+4. Original machine-code decoder executed independently
+
+The emulator uses the exact bootloader bytes from the full backup:
+  0x0800090C: decoder-state initialization
+  0x080026C4: wrapper selecting each 512-byte block's seed/key
+  0x080027F8: word decoder
+  0x0800284C: 512-byte table of 256 little-endian halfword seeds
+
+Only those three original code routines execute. Flash is mapped read/execute,
+RAM is a zero-filled 20 KiB region, and no peripheral registers or stubs are
+mapped. The original initializer sets RAM at 0x20000034 to words:
+  1, 9, 18, 3, 0x92A753FA, 0, 0, 0, 0, 0
+
+Each wrapper call receives:
+  r0 = 0x20000178, the input/output block buffer
+  r1 = cumulative encrypted payload byte offset
+  r2 = block length, at most 512 bytes
+  SP = 0x20004000
+
+Two cases were executed:
+
+  Captured v2.05 ciphertext: 99,840 bytes / 195 blocks. Every block decrypts
+  exactly to the independently recovered distribution image. Result SHA256:
+    36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83
+
+  Synthetic arbitrary plaintext: 1,536 bytes / 3 blocks, generated with
+  byte[i] = ((i*73) XOR (i>>3) XOR 0xA5) & 255, then encrypted by cryptdo8's
+  GD32 implementation. The original bootloader decoder recovers every byte.
+  Result SHA256:
+    00c5061975f65c4f03f23d54d0e476de808e64850667e7a30f6e705d6928d3e3
+
+This demonstrates compatibility of custom encrypted content with the installed
+decoder. The synthetic case is a data fixture, not a deployable application.
+The decoder branches on lengths/counters and has no payload-content signature
+or UID check. Full update-handler acceptance and application startup checks are
+separate paths, analyzed by the other bootloader reports; this result does not
+replace those checks.
+
+No hardware was accessed, and no update/program handler ran during this work.
+
+Files
+-----
+
+backup_validation.json             Machine-readable transcript/diff/region data
+validate_backup.py                 Reproducible offline validation
+flash_pages_1024.csv               Hashes and programmed-byte counts per 1 KiB
+v2.05_differences.csv              Complete two-span v2.05 comparison
+v2.04_differences.csv              Complete v2.04 comparison
+bootloader_decoder_emulation.json  Parameters, code addresses and both results
+emulate_bootloader_decoder.py      Reproducible original-code execution

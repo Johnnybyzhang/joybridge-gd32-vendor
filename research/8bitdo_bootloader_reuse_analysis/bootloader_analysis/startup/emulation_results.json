@@ -1,0 +1,268 @@
+{
+  "hardware_accessed": false,
+  "source_sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6",
+  "peripherals_emulated": false,
+  "all_expected_outcomes_observed": true,
+  "cases": [
+    {
+      "case": "stock_header",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003404",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "application_entry_reached",
+      "stopped_at": "0x08003570",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20003fc0",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "erased_application_id",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003404",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "application_entry_reached",
+      "stopped_at": "0x08003570",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20003fc0",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "arbitrary_application_body",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003404",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "application_entry_reached",
+      "stopped_at": "0x08003570",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20003fc0",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "button_pressed",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "usb_update_mode_entered",
+      "stopped_at": "0x08001a80",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20001648",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "sram_update_magic",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "usb_update_mode_entered",
+      "stopped_at": "0x08001a80",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20001648",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "invalid_stack_pointer",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        },
+        {
+          "address": "0x0801f800",
+          "bytes": 4
+        },
+        {
+          "address": "0x08003400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "launch_rejected_sp_and_returned",
+      "stopped_at": "0x080027de",
+      "initial_app_sp": "0x10000000",
+      "msp": "0x20001648",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000007",
+      "systick_load": "0x00075300",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "erased_boot_tags",
+      "stubbed_calls": [
+        "clock_gpio_setup"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [],
+      "outcome": "blank_boot_tags_and_no_factory_image_halt",
+      "stopped_at": "0x0800279e",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20001648",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000000",
+      "systick_load": "0x00000000",
+      "nvic_iser0": "0x00100000"
+    },
+    {
+      "case": "occupied_tail_page",
+      "stubbed_calls": [
+        "clock_gpio_setup",
+        "option_byte_maintenance"
+      ],
+      "data_reads_outside_boot": [
+        {
+          "address": "0x0801f400",
+          "bytes": 4
+        }
+      ],
+      "erase_requests": [
+        {
+          "address": "0x0801f400",
+          "bytes": 3072
+        }
+      ],
+      "outcome": "tail_cleanup_halt",
+      "stopped_at": "0x080027c6",
+      "initial_app_sp": "0x20003fb8",
+      "msp": "0x20001648",
+      "primask": 0,
+      "control": 0,
+      "vtor": "0x08000000",
+      "systick_ctrl": "0x00000000",
+      "systick_load": "0x00000000",
+      "nvic_iser0": "0x00100000"
+    }
+  ]
+}

@@ -1,0 +1,1776 @@
+{
+  "hardware_accessed": false,
+  "flashable_custom_files_written": false,
+  "bootloader_source_sha256": "8d733de72baf8cc04ce3ada92e3df39be405b55587a749514c0c756eaad38692",
+  "full_backup_sha256": "e2139cea93cf56bc11e8455a23b60d2c61e4d9245e2da74e801901ab7585d1a6",
+  "original_entry": "0x0800247c",
+  "original_update_handler": "0x0800100c",
+  "original_decoder": [
+    "0x080026c4",
+    "0x080027f8"
+  ],
+  "mocked_functions": {
+    "0x08000d14": "FMC unlock",
+    "0x08000b80": "FMC lock",
+    "0x08000af4": "one-page hardware erase",
+    "0x08000be8": "one-halfword hardware program",
+    "0x080013a0": "USB nested reply transport",
+    "0x0800142c": "USB generic reply transport"
+  },
+  "cases": [
+    {
+      "case": "unsigned_custom_fixture",
+      "unsigned_plaintext_sha256": "ae772a775e82e79df43a37d50dfe8e1d8a8c8244db6388419b51d5472ba4c995",
+      "plaintext_bytes": 1024,
+      "cipher_sha256": "4a4da820b7c76f17f3efb5471e936c81077bf8d4832977a325b7779bcf305b47",
+      "version": "0x12345678",
+      "ignored_header_bytes_12_27_hex": "6e6f742d612d7369676e617475726521",
+      "supplied_tag_hex": "f975ca555052a0d011b6ef60",
+      "decoded_equals_original_plaintext": true,
+      "installed_equals_expected_plaintext_with_metadata": true,
+      "bootloader_unchanged": true,
+      "metadata_page_unchanged": true,
+      "finalization_erased_tail": true,
+      "commands": [
+        {
+          "command": "0x01",
+          "payload_bytes": 28,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [
+            "0x08003400"
+          ],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 32,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 64,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 96,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 128,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 160,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 192,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 224,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 256,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 288,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 320,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 352,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 384,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 416,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 448,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 480,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 256
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 32,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 64,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 96,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 128,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 160,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 192,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 224,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 256,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 288,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 320,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 352,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 384,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 416,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 448,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 480,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 258
+        },
+        {
+          "command": "0x06",
+          "payload_bytes": 12,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "01",
+              "bytes": 1
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 6
+        },
+        {
+          "command": "0x02",
+          "payload_bytes": 0,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 1,
+          "replies": [],
+          "erase_pages": [
+            "0x0801f400",
+            "0x0801f800",
+            "0x0801fc00"
+          ],
+          "halfwords_programmed": 0
+        }
+      ],
+      "decode_blocks": [
+        {
+          "offset": 0,
+          "bytes": 512,
+          "sha256": "b50f7ce55e9dceaa8bd64607b45c596a7c1cd8f40f657a0b14521588bb1440d5"
+        },
+        {
+          "offset": 512,
+          "bytes": 512,
+          "sha256": "5d749b4bc43babf5a429ef9a8f7946ca1fd74490d9b911ba4dc6d54b6d1e2431"
+        }
+      ],
+      "repeat_tag_attempt": {
+        "command": "0x06",
+        "payload_bytes": 12,
+        "return_u32": "0xfffffffc",
+        "processed": 1024,
+        "declared_length": 1024,
+        "base": "0x08003400",
+        "version": "0x12345678",
+        "buffered": 0,
+        "usb_exit_flag": 1,
+        "replies": [
+          {
+            "event": "reply",
+            "builder": "0x080013a0",
+            "transport": "0x97",
+            "opcode": "0x18",
+            "payload_hex": "00",
+            "bytes": 1
+          }
+        ],
+        "erase_pages": [],
+        "halfwords_programmed": 0
+      }
+    },
+    {
+      "case": "corrupted_cipher_and_arbitrary_tag",
+      "unsigned_plaintext_sha256": "ae772a775e82e79df43a37d50dfe8e1d8a8c8244db6388419b51d5472ba4c995",
+      "plaintext_bytes": 1024,
+      "cipher_sha256": "022408606939446fa678c6881501b27f0cee716f32371d284476d48b3f1ed99d",
+      "version": "0x12345678",
+      "ignored_header_bytes_12_27_hex": "6e6f742d612d7369676e617475726521",
+      "supplied_tag_hex": "111111112222222233333333",
+      "decoded_equals_original_plaintext": false,
+      "installed_equals_expected_plaintext_with_metadata": false,
+      "bootloader_unchanged": true,
+      "metadata_page_unchanged": true,
+      "finalization_erased_tail": true,
+      "commands": [
+        {
+          "command": "0x01",
+          "payload_bytes": 28,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [
+            "0x08003400"
+          ],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 32,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 64,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 96,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 128,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 160,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 192,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 224,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 256,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 288,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 320,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 352,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 384,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 416,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 448,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 0,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 480,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 256
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 32,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 64,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 96,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 128,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 160,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 192,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 224,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 256,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 288,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 320,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 352,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 384,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 416,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 448,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 512,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 480,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 0
+        },
+        {
+          "command": "0x00",
+          "payload_bytes": 32,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "",
+              "bytes": 0
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 258
+        },
+        {
+          "command": "0x06",
+          "payload_bytes": 12,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 0,
+          "replies": [
+            {
+              "event": "reply",
+              "builder": "0x080013a0",
+              "transport": "0x97",
+              "opcode": "0x14",
+              "payload_hex": "01",
+              "bytes": 1
+            }
+          ],
+          "erase_pages": [],
+          "halfwords_programmed": 6
+        },
+        {
+          "command": "0x02",
+          "payload_bytes": 0,
+          "return_u32": "0x00000000",
+          "processed": 1024,
+          "declared_length": 1024,
+          "base": "0x08003400",
+          "version": "0x12345678",
+          "buffered": 0,
+          "usb_exit_flag": 1,
+          "replies": [],
+          "erase_pages": [
+            "0x0801f400",
+            "0x0801f800",
+            "0x0801fc00"
+          ],
+          "halfwords_programmed": 0
+        }
+      ],
+      "decode_blocks": [
+        {
+          "offset": 0,
+          "bytes": 512,
+          "sha256": "e602095ea40954b07eae6988adbed92bd5093d82f4848102487fd57245ce4848"
+        },
+        {
+          "offset": 512,
+          "bytes": 512,
+          "sha256": "5d749b4bc43babf5a429ef9a8f7946ca1fd74490d9b911ba4dc6d54b6d1e2431"
+        }
+      ],
+      "repeat_tag_attempt": {
+        "command": "0x06",
+        "payload_bytes": 12,
+        "return_u32": "0xfffffffc",
+        "processed": 1024,
+        "declared_length": 1024,
+        "base": "0x08003400",
+        "version": "0x12345678",
+        "buffered": 0,
+        "usb_exit_flag": 1,
+        "replies": [
+          {
+            "event": "reply",
+            "builder": "0x080013a0",
+            "transport": "0x97",
+            "opcode": "0x18",
+            "payload_hex": "00",
+            "bytes": 1
+          }
+        ],
+        "erase_pages": [],
+        "halfwords_programmed": 0
+      }
+    }
+  ],
+  "negative_checks": {
+    "wrong_base_rejected_without_flash_changes": {
+      "command": "0x01",
+      "payload_bytes": 28,
+      "return_u32": "0xffffffff",
+      "processed": 0,
+      "declared_length": 1024,
+      "base": "0x08000000",
+      "version": "0x00000007",
+      "buffered": 0,
+      "usb_exit_flag": 0,
+      "replies": [
+        {
+          "event": "reply",
+          "builder": "0x080013a0",
+          "transport": "0x97",
+          "opcode": "0x18",
+          "payload_hex": "",
+          "bytes": 0
+        }
+      ],
+      "erase_pages": [],
+      "halfwords_programmed": 0
+    },
+    "program_readback_mismatch_rejected": {
+      "command": "0x00",
+      "payload_bytes": 32,
+      "return_u32": "0xfffffffe",
+      "processed": 0,
+      "declared_length": 1024,
+      "base": "0x08003400",
+      "version": "0x00000007",
+      "buffered": 512,
+      "usb_exit_flag": 0,
+      "replies": [
+        {
+          "event": "reply",
+          "builder": "0x080013a0",
+          "transport": "0x97",
+          "opcode": "0x18",
+          "payload_hex": "",
+          "bytes": 0
+        }
+      ],
+      "erase_pages": [],
+      "halfwords_programmed": 1
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "capture": {
+    "name": "Updatev205.pcapng",
+    "bytes": 1259176,
+    "sha256": "e9584cce66eaf6f21b1240c52c7d688d22b2d9fe75cb7d6e4145a577bcd4410d",
+    "usbpcap_packets": 14088
+  },
+  "session": {
+    "bus": 2,
+    "device": 6,
+    "update_header_frame": 1345,
+    "usb_update_header_hex": "cd000000003400080086010064ed4a1400000000d0070d0280eb7402",
+    "data_endpoint": "0x01",
+    "data_first_frame": 1353,
+    "data_last_frame": 13829,
+    "packet_count": 3120,
+    "bytes_per_packet": 32,
+    "packet_payload_offset": 8
+  },
+  "firmware": {
+    "version": 205,
+    "load_address": "0x08003400",
+    "end_address_exclusive": "0x0801ba00",
+    "bytes": 99840,
+    "encrypted_sha256": "a5020e9402452938c94887eaaf4e05ae1196650695df1ae6cc0dffc7a9db5d82",
+    "decrypted_sha256": "36817322fc13106cb0663b6d84edb8f3fb35dd6b94722f514675e83350b84b83",
+    "initial_stack_pointer": "0x20003fb8",
+    "reset_vector": "0x08003571",
+    "cipher": "8CryptDo GD32",
+    "encryption_roundtrip_exact": true
+  },
+  "dat_comparison": {
+    "name": "v2.05.dat",
+    "bytes": 99868,
+    "sha256": "fac366199a5bcbb3c6cb79188b97019d4c800be76613c5b7a2f907b864ee25aa",
+    "first_12_header_bytes_equal": true,
+    "payload_equal": true,
+    "canonical_dat_equal": true
+  },
+  "limitations": [
+    "The USB wire data remains encrypted; plaintext requires decryption.",
+    "This is an application update, not a full flash dump or bootloader backup.",
+    "The script reads local files only and never accesses the target device."
+  ]
+}

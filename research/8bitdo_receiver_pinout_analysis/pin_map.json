@@ -1,0 +1,85 @@
+{
+  "mcu": "GD32F103C8T6",
+  "package": "LQFP48",
+  "pins": [
+    {
+      "signal": "button",
+      "port": "A",
+      "pin": 1,
+      "package_pin": 11,
+      "active_low": true,
+      "mode": "input_pullup"
+    },
+    {
+      "signal": "rgb_channel_0x01",
+      "port": "B",
+      "pin": 9,
+      "package_pin": 46,
+      "active_low": true,
+      "color": null
+    },
+    {
+      "signal": "rgb_channel_0x02",
+      "port": "B",
+      "pin": 8,
+      "package_pin": 45,
+      "active_low": true,
+      "color": null
+    },
+    {
+      "signal": "rgb_channel_0x04",
+      "port": "B",
+      "pin": 5,
+      "package_pin": 41,
+      "active_low": true,
+      "color": null
+    },
+    {
+      "signal": "hci_tx_mcu_to_radio",
+      "port": "A",
+      "pin": 2,
+      "package_pin": 12,
+      "mode": "alternate_pushpull"
+    },
+    {
+      "signal": "hci_rx_radio_to_mcu",
+      "port": "A",
+      "pin": 3,
+      "package_pin": 13,
+      "mode": "floating_input"
+    },
+    {
+      "signal": "radio_i2c_scl",
+      "port": "B",
+      "pin": 10,
+      "package_pin": 21
+    },
+    {
+      "signal": "radio_i2c_sda",
+      "port": "B",
+      "pin": 11,
+      "package_pin": 22
+    },
+    {
+      "signal": "radio_startup_control",
+      "port": "B",
+      "pin": 13,
+      "package_pin": 26,
+      "sequence": [
+        0,
+        1
+      ],
+      "inferred_radio_pad": "RDA5876 LDO_ON pin16; continuity not measured"
+    }
+  ],
+  "hci": {
+    "peripheral": "GD32 USART1",
+    "base": "0x40004400",
+    "framing": "8N1",
+    "hardware_flow_control": false,
+    "startup_baud": 115200,
+    "operating_baud": 1500000,
+    "transport": "H4"
+  },
+  "confidence": "MCU pin selection derived from firmware; RGB colors and radio-pad PCB continuity are not measured."
+}
